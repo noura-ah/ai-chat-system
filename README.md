@@ -151,81 +151,19 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Deployment
 
-### Docker (Recommended for Self-Hosting)
+### Hosting Options
 
-#### Prerequisites
-- Docker and Docker Compose installed
-- All environment variables configured
+1. Push your repository to your hosting provider (Vercel, Netlify, Railway, etc.).
+2. Configure your environment variables in the provider's dashboard.
+3. Deploy via your provider’s normal workflow (e.g., Vercel auto-deploy from Git).
 
-#### Quick Start
-
-1. **Create environment file:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your actual values
-   ```
-
-2. **Build and run with Docker Compose:**
-   ```bash
-   docker-compose up -d --build
-   ```
-
-3. **Access the application:**
-   - Open http://localhost:3000 in your browser
-
-#### Docker Commands
+For local development, run:
 
 ```bash
-# Build the image
-docker-compose build
-
-# Start the container
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop the container
-docker-compose down
-
-# Rebuild after code changes
-docker-compose up -d --build
+npm run dev
 ```
 
-#### Using Dockerfile directly
-
-```bash
-# Build the image
-docker build -t ai-chat-system .
-
-# Run the container
-docker run -p 3000:3000 --env-file .env ai-chat-system
-```
-
-#### Production Deployment
-
-For production, make sure to:
-- Set `NEXTAUTH_URL` to your production domain
-- Use a reverse proxy (nginx, traefik) for HTTPS
-- Configure proper firewall rules
-- Set up monitoring and logging
-
-### Vercel (Cloud Platform)
-
-1. Push your code to GitHub
-2. Import your repository to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
-
-### Other Platforms
-
-The application can be deployed to any platform that supports Next.js:
-- Netlify
-- AWS Amplify
-- Railway
-- DigitalOcean App Platform
-
-Make sure to set all environment variables in your deployment platform.
+Open http://localhost:3000 to verify the app.
 
 ## Environment Variables
 
@@ -240,7 +178,7 @@ Make sure to set all environment variables in your deployment platform.
 | `OPENROUTER_REFERER_URL` | Your app URL for tracking | No |
 | `OPENROUTER_APP_NAME` | Your app name for tracking | No |
 | `SERPAPI_KEY` | SerpAPI key for web search | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | Optional (for chat history) |
+| `DATABASE_URL` | PostgreSQL connection string | Yes(for chat history) |
 
 ## Customization
 

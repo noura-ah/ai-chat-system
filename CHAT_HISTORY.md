@@ -37,10 +37,6 @@ Add to `.env`:
 DATABASE_URL="postgresql://user:password@localhost:5432/ai_chat?schema=public"
 ```
 
-For Docker, use:
-```env
-DATABASE_URL="postgresql://postgres:password@postgres:5432/ai_chat?schema=public"
-```
 
 ### 3. Initialize Database
 
@@ -121,48 +117,6 @@ Messages are automatically saved when:
 Conversations are automatically loaded when:
 - Component mounts with a conversationId
 - User selects a previous conversation
-
-## Docker Setup
-
-### docker-compose.yml
-
-Add PostgreSQL service:
-
-```yaml
-services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ai_chat
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - app-network
-
-  app:
-    # ... existing config
-    depends_on:
-      - postgres
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_chat?schema=public
-
-volumes:
-  postgres_data:
-```
-
-### Dockerfile Updates
-
-Add Prisma generate step:
-
-```dockerfile
-# In builder stage, after copying files
-RUN npx prisma generate
-RUN npm run build
-```
 
 ## Migration Commands
 

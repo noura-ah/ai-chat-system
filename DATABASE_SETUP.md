@@ -13,10 +13,7 @@ npm install
 **Option A: PostgreSQL (Recommended for Production)**
 
 ```bash
-# Using Docker
-docker-compose up -d postgres
-
-# Or install PostgreSQL locally and create database
+# Install PostgreSQL locally (or via your OS package manager) and create the database
 createdb ai_chat
 ```
 
@@ -61,16 +58,6 @@ npm run db:migrate
 npm run db:studio
 ```
 
-## Docker Setup
-
-The `docker-compose.yml` includes PostgreSQL. Just run:
-
-```bash
-docker-compose up -d
-```
-
-The database will be automatically set up and migrations will run.
-
 ## Features
 
 - ✅ Automatic message persistence
@@ -93,8 +80,8 @@ The database will be automatically set up and migrations will run.
 ### Database Connection Error
 
 1. Check `DATABASE_URL` is correct
-2. Verify database is running: `docker-compose ps`
-3. Check database logs: `docker-compose logs postgres`
+2. Verify your PostgreSQL server is running (`pg_isready`, system service status, etc.)
+3. Review PostgreSQL logs (e.g., `journalctl` or log file in `/var/log/postgresql`)
 
 ### Migration Errors
 
