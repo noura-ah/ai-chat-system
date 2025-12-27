@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-chatyour-password
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:your-password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:your-password}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_chat}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:your-password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
@@ -15,10 +35,17 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-openai/gpt-4o-mini}
+      - OPENROUTER_REFERER_URL=${OPENROUTER_REFERER_URL}
+      - OPENROUTER_APP_NAME=${OPENROUTER_APP_NAME}
       - SERPAPI_KEY=${SERPAPI_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:your-password}:${POSTGRES_PASSWORD:your-password}@postgres:5432/${POSTGRES_DB:-ai_chat}?schema=public
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
     healthcheck:
@@ -31,4 +58,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
 

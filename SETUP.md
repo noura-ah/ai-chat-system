@@ -15,7 +15,8 @@ NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=generate-using-openssl-rand-base64-32
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-OPENAI_API_KEY=your-openai-api-key
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_MODEL=openai/gpt-4o-mini  # Optional: defaults to openai/gpt-4o-mini
 SERPAPI_KEY=your-serpapi-key
 ```
 

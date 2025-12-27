@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import axios from 'axios'
-import { getOpenAIClient } from '@/lib/openai'
+import { openRouterChatCompletion } from '@/lib/openrouter'
 
 interface SerpApiResult {
   organic_results?: Array<{
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
         title: img.title,
       })) || []
 
-    // Generate summary using OpenAI
+    // Generate summary using AI
     let summary = 'Here are the search results:'
     if (results.length > 0) {
       const resultsText = results
@@ -99,12 +99,9 @@ export async function POST(req: NextRequest) {
         .map((r, i) => `${i + 1}. ${r.title}: ${r.snippet}`)
         .join('\n\n')
 
-      const openai = getOpenAIClient()
-      if (openai) {
-        try {
-          const completion = await openai.chat.completions.create({
-          model: 'gpt-3.5-turbo',
-          messages: [
+      try {
+        const completion = await openRouterChatCompletion(
+          [
             {
               role: 'system',
               content:
@@ -115,15 +112,16 @@ export async function POST(req: NextRequest) {
               content: `Based on these search results for "${query}", provide a brief summary:\n\n${resultsText}`,
             },
           ],
-          max_tokens: 200,
-          temperature: 0.7,
-        })
+          {
+            max_tokens: 200,
+            temperature: 0.7,
+          }
+        )
 
-          summary = completion.choices[0]?.message?.content || summary
-        } catch (error) {
-          console.error('OpenAI summary error:', error)
-          // Use default summary if OpenAI fails
-        }
+        summary = completion.choices[0]?.message?.content || summary
+      } catch (error) {
+        console.error('AI summary error:', error)
+        // Use default summary if AI fails
       }
     } else {
       summary = 'No search results found for your query.'

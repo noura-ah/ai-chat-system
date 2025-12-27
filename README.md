@@ -4,7 +4,7 @@ A full-stack AI chat application similar to ChatGPT with Google OAuth authentica
 
 ## Features
 
-- 🤖 **AI Chat**: Real-time streaming chat responses using OpenAI API
+- 🤖 **AI Chat**: Real-time streaming chat responses using OpenRouter (supports multiple AI models)
 - 🔍 **Web Search**: Integrated search functionality with image results
 - 🔐 **Google OAuth**: Secure authentication with Google Single Sign-On
 - 🎨 **Modern UI**: Clean, responsive interface built with Tailwind CSS
@@ -17,14 +17,14 @@ A full-stack AI chat application similar to ChatGPT with Google OAuth authentica
 - **Frontend**: Next.js 14, React, TypeScript
 - **Styling**: Tailwind CSS
 - **Authentication**: NextAuth.js with Google OAuth
-- **AI Provider**: OpenAI API
+- **AI Provider**: OpenRouter (supports OpenAI, Anthropic, and other models)
 - **Search API**: SerpAPI (configurable)
 
 ## Prerequisites
 
 - Node.js 18+ and npm/yarn
 - Google OAuth credentials (Client ID and Secret)
-- OpenAI API key
+- OpenRouter API key
 - SerpAPI key (optional, for web search)
 
 ## Setup Instructions
@@ -48,11 +48,19 @@ NEXTAUTH_SECRET=your-nextauth-secret-here
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# OpenAI API
-OPENAI_API_KEY=your-openai-api-key
+# OpenRouter API (supports multiple AI models)
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_MODEL=openai/gpt-4o-mini  # Optional: defaults to openai/gpt-4o-mini
+OPENROUTER_REFERER_URL=https://your-domain.com  # Optional: for tracking
+OPENROUTER_APP_NAME=AI Chat System  # Optional: app name for tracking
 
 # Web Search API (SerpAPI)
 SERPAPI_KEY=your-serpapi-key
+
+# Database (Optional - for chat history persistence)
+DATABASE_URL=postgresql://user:password@localhost:5432/ai_chat?schema=public
+# Or use SQLite for development:
+# DATABASE_URL="file:./dev.db"
 ```
 
 ### 3. Generate NextAuth Secret
@@ -72,7 +80,29 @@ openssl rand -base64 32
 5. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
 6. Copy the Client ID and Client Secret to your `.env.local` file
 
-### 5. Run the Development Server
+### 5. Set Up Database (Optional - for Chat History)
+
+If you want to enable chat history persistence:
+
+```bash
+# Install dependencies (if not already done)
+npm install
+
+# Generate Prisma Client
+npm run db:generate
+
+# Push schema to database (or use migrate for production)
+npm run db:push
+```
+
+For production, use migrations:
+```bash
+npm run db:migrate
+```
+
+**Note:** Chat history is optional. The app works without a database, but messages won't persist across sessions.
+
+### 6. Run the Development Server
 
 ```bash
 npm run dev
@@ -205,8 +235,12 @@ Make sure to set all environment variables in your deployment platform.
 | `NEXTAUTH_SECRET` | Secret for NextAuth session encryption | Yes |
 | `GOOGLE_CLIENT_ID` | Google OAuth Client ID | Yes |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Yes |
-| `OPENAI_API_KEY` | OpenAI API key | Yes |
-| `SERPAPI_KEY` | SerpAPI key for web search | Optional |
+| `OPENROUTER_API_KEY` | OpenRouter API key | Yes |
+| `OPENROUTER_MODEL` | Model to use (e.g., `openai/gpt-4o-mini`, `anthropic/claude-3-haiku`) | No (defaults to `openai/gpt-4o-mini`) |
+| `OPENROUTER_REFERER_URL` | Your app URL for tracking | No |
+| `OPENROUTER_APP_NAME` | Your app name for tracking | No |
+| `SERPAPI_KEY` | SerpAPI key for web search | Yes |
+| `DATABASE_URL` | PostgreSQL connection string | Optional (for chat history) |
 
 ## Customization
 

@@ -1,31 +1,83 @@
 'use client'
 
+import { useEffect } from 'react'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
 import { useMessages } from '@/hooks/useMessages'
 import { useMessageHandler } from '@/hooks/useMessageHandler'
+import { useConversation } from '@/hooks/useConversation'
+import { Message } from '@/types/chat'
 
 interface ChatInterfaceProps {
   mode: 'chat' | 'search'
+  conversationId?: string
+  onConversationCreated?: (id: string) => void
+  onMessagesChange?: (messages: Message[]) => void
 }
 
-export default function ChatInterface({ mode }: ChatInterfaceProps) {
-  const { messages, addMessage, updateLastMessage, messagesEndRef } = useMessages()
+export default function ChatInterface({ mode, conversationId: externalConversationId, onConversationCreated, onMessagesChange }: ChatInterfaceProps) {
+  const { conversationId: internalConversationId, createNewConversation, resetConversation } = useConversation(mode, externalConversationId)
+  const conversationId = externalConversationId || internalConversationId
+  const { messages, addMessage, updateLastMessage, updateMessageById, setMessages, messagesEndRef, isLoading: isLoadingMessages } = useMessages(conversationId)
+  
+  // Notify parent when messages change
+  useEffect(() => {
+    if (onMessagesChange) {
+      onMessagesChange(messages)
+    }
+  }, [messages, onMessagesChange])
+  
+  // Create conversation handler that also notifies parent
+  const handleCreateConversation = async () => {
+    const newId = await createNewConversation()
+    if (newId && onConversationCreated) {
+      onConversationCreated(newId)
+    }
+    return newId
+  }
+
   const { handleSendMessage, isLoading } = useMessageHandler({
     mode,
     messages,
+    conversationId,
+    onCreateConversation: handleCreateConversation,
     addMessage,
     updateLastMessage,
+    updateMessageById,
   })
 
+  // Reset when external conversationId changes to undefined (new conversation requested)
+  useEffect(() => {
+    if (externalConversationId === undefined) {
+      resetConversation()
+      setMessages([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalConversationId]) // Only depend on externalConversationId to avoid loops
+
+  // Scroll when loading starts (for search or AI responses)
+  useEffect(() => {
+    if (isLoading) {
+      // Scroll when loading starts to show loading indicator
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [messages, isLoading, messagesEndRef])
+
   return (
-    <div className="flex-1 flex flex-col max-w-4xl w-full mx-auto px-4 h-screen">
-      <div className="flex-1 overflow-y-auto">
-        <MessageList messages={messages} isLoading={isLoading} mode={mode} />
-        <div ref={messagesEndRef} />
+    <div className="flex-1 flex flex-col h-full w-full">
+      <div className="flex-1 overflow-y-auto w-full">
+        <div className="max-w-4xl w-full mx-auto px-4 h-full">
+          <MessageList messages={messages} isLoading={isLoading} mode={mode} />
+          <div ref={messagesEndRef} />
+        </div>
       </div>
-      <div className="flex-shrink-0 py-6">
-        <MessageInput onSend={handleSendMessage} isLoading={isLoading} mode={mode} />
+      <div className="flex-shrink-0 py-6 w-full border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-4xl w-full mx-auto px-4">
+          <MessageInput onSend={handleSendMessage} isLoading={isLoading} mode={mode} conversationId={conversationId} />
+        </div>
       </div>
     </div>
   )

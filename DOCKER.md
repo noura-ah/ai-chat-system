@@ -25,7 +25,8 @@ NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-generated-secret
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-OPENAI_API_KEY=your-openai-api-key
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_MODEL=openai/gpt-4o-mini  # Optional: defaults to openai/gpt-4o-mini
 SERPAPI_KEY=your-serpapi-key
 ```
 
@@ -155,7 +156,7 @@ networks:
 
 2. Verify environment variables:
    ```bash
-   docker-compose exec app env | grep -E 'NEXTAUTH|GOOGLE|OPENAI|SERPAPI'
+   docker-compose exec app env | grep -E 'NEXTAUTH|GOOGLE|OPENROUTER|SERPAPI'
    ```
 
 3. Check if port 3000 is available:

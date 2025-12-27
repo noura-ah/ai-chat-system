@@ -27,8 +27,17 @@ export default function MessageList({ messages, isLoading, mode }: MessageListPr
     )
   }
 
+  // Only show loading indicator if:
+  // 1. isLoading is true (message is being sent/processed)
+  // 2. AND the last message is a user message (meaning we're waiting for first chunk, not streaming)
+  // This prevents showing loading bubble when:
+  // - Switching conversations (isLoadingMessages is separate, not passed here)
+  // - Message is already streaming (last message is assistant with content)
+  const lastMessage = messages[messages.length - 1]
+  const shouldShowLoading = isLoading && lastMessage?.role === 'user'
+
   return (
-    <div className="space-y-4 py-4 mt-20">
+    <div className="space-y-4 py-4">
       {messages.map((message) => (
         <div key={message.id}>
           <MessageBubble message={message} />
@@ -40,7 +49,7 @@ export default function MessageList({ messages, isLoading, mode }: MessageListPr
           )}
         </div>
       ))}
-      {isLoading && (
+      {shouldShowLoading && (
         <div className="flex gap-3">
           <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
             <Loader2 className="w-5 h-5 animate-spin" />

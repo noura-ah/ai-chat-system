@@ -1,8 +1,7 @@
 import { NextRequest } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import OpenAI from 'openai'
-import { getOpenAIClient } from '@/lib/openai'
+import { openRouterChatStream } from '@/lib/openrouter'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,8 +16,8 @@ export async function POST(req: NextRequest) {
       return new Response('Message is required', { status: 400 })
     }
 
-    // Convert history to OpenAI format
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    // Convert history to chat completion format
+    const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
       {
         role: 'system',
         content:
@@ -44,27 +43,72 @@ export async function POST(req: NextRequest) {
       content: message,
     })
 
-    // Create streaming response
-    const openai = getOpenAIClient()
-    const stream = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages,
-      stream: true,
-      temperature: 0.7,
-    })
+    // Create streaming response using OpenRouter API directly
+    const stream = await openRouterChatStream(messages, { temperature: 0.7 })
 
-    // Create a readable stream
+    // Process the SSE stream from OpenRouter
     const encoder = new TextEncoder()
+    const decoder = new TextDecoder()
     const readable = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of stream) {
-            const content = chunk.choices[0]?.delta?.content || ''
+          const reader = stream.getReader()
+          let buffer = ''
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            buffer = lines.pop() || ''
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                if (data === '[DONE]') {
+                  controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                  continue
+                }
+
+                try {
+                  const parsed = JSON.parse(data)
+                  const content = parsed.choices?.[0]?.delta?.content || ''
+                  if (content) {
+                    const data = `data: ${JSON.stringify({ content })}\n\n`
+                    controller.enqueue(encoder.encode(data))
+                  }
+                } catch (e) {
+                  // Ignore parse errors
+                }
+              }
+            }
+          }
+
+          // Process remaining buffer
+          if (buffer.trim()) {
+            const lines = buffer.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                if (data === '[DONE]') {
+                  controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                } else {
+                  try {
+                    const parsed = JSON.parse(data)
+                    const content = parsed.choices?.[0]?.delta?.content || ''
             if (content) {
               const data = `data: ${JSON.stringify({ content })}\n\n`
               controller.enqueue(encoder.encode(data))
             }
+                  } catch (e) {
+                    // Ignore parse errors
+                  }
+                }
+              }
+            }
           }
+
           controller.enqueue(encoder.encode('data: [DONE]\n\n'))
           controller.close()
         } catch (error) {
@@ -84,11 +128,11 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Chat API error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Internal server error'
-    const statusCode = errorMessage.includes('OPENAI_API_KEY') ? 503 : 500
+    const statusCode = errorMessage.includes('OPENROUTER_API_KEY') ? 503 : 500
     return new Response(
       JSON.stringify({ 
-        error: errorMessage.includes('OPENAI_API_KEY') 
-          ? 'OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.'
+        error: errorMessage.includes('OPENROUTER_API_KEY') 
+          ? 'OpenRouter API key is not configured. Please set OPENROUTER_API_KEY environment variable.'
           : 'Internal server error' 
       }),
       {
