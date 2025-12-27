@@ -40,7 +40,7 @@ services:
       - OPENROUTER_REFERER_URL=${OPENROUTER_REFERER_URL}
       - OPENROUTER_APP_NAME=${OPENROUTER_APP_NAME}
       - SERPAPI_KEY=${SERPAPI_KEY}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:your-password}:${POSTGRES_PASSWORD:your-password}@postgres:5432/${POSTGRES_DB:-ai_chat}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:your-username}:${POSTGRES_PASSWORD:your-password}@postgres:5432/${POSTGRES_DB:-ai_chat}?schema=public
     env_file:
       - .env
     depends_on:
