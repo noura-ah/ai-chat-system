@@ -51,11 +51,46 @@ export async function POST(req: NextRequest) {
     const decoder = new TextDecoder()
     const readable = new ReadableStream({
       async start(controller) {
+        // Helper function to safely enqueue data
+        const safeEnqueue = (data: Uint8Array) => {
+          try {
+            // Check if controller is still open before enqueueing
+            if (controller.desiredSize !== null) {
+              controller.enqueue(data)
+            }
+          } catch (error: any) {
+            // Ignore errors if controller is already closed (e.g., request aborted)
+            if (error?.name !== 'InvalidStateError' && error?.code !== 'ERR_INVALID_STATE') {
+              throw error
+            }
+          }
+        }
+
+        // Helper function to safely close controller
+        const safeClose = () => {
+          try {
+            if (controller.desiredSize !== null) {
+              controller.close()
+            }
+          } catch (error: any) {
+            // Ignore errors if controller is already closed
+            if (error?.name !== 'InvalidStateError' && error?.code !== 'ERR_INVALID_STATE') {
+              throw error
+            }
+          }
+        }
+
+        let reader: ReadableStreamDefaultReader<Uint8Array> | null = null
         try {
-          const reader = stream.getReader()
+          reader = stream.getReader()
           let buffer = ''
 
           while (true) {
+            // Check if request was aborted
+            if (req.signal?.aborted) {
+              break
+            }
+
             const { done, value } = await reader.read()
             if (done) break
 
@@ -64,10 +99,15 @@ export async function POST(req: NextRequest) {
             buffer = lines.pop() || ''
 
             for (const line of lines) {
+              // Check again before processing each line
+              if (req.signal?.aborted) {
+                break
+              }
+
               if (line.startsWith('data: ')) {
                 const data = line.slice(6)
                 if (data === '[DONE]') {
-                  controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                  safeEnqueue(encoder.encode('data: [DONE]\n\n'))
                   continue
                 }
 
@@ -76,7 +116,7 @@ export async function POST(req: NextRequest) {
                   const content = parsed.choices?.[0]?.delta?.content || ''
                   if (content) {
                     const data = `data: ${JSON.stringify({ content })}\n\n`
-                    controller.enqueue(encoder.encode(data))
+                    safeEnqueue(encoder.encode(data))
                   }
                 } catch (e) {
                   // Ignore parse errors
@@ -85,22 +125,22 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // Process remaining buffer
-          if (buffer.trim()) {
+          // Process remaining buffer only if not aborted
+          if (!req.signal?.aborted && buffer.trim()) {
             const lines = buffer.split('\n')
             for (const line of lines) {
               if (line.startsWith('data: ')) {
                 const data = line.slice(6)
                 if (data === '[DONE]') {
-                  controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                  safeEnqueue(encoder.encode('data: [DONE]\n\n'))
                 } else {
                   try {
                     const parsed = JSON.parse(data)
                     const content = parsed.choices?.[0]?.delta?.content || ''
-            if (content) {
-              const data = `data: ${JSON.stringify({ content })}\n\n`
-              controller.enqueue(encoder.encode(data))
-            }
+                    if (content) {
+                      const data = `data: ${JSON.stringify({ content })}\n\n`
+                      safeEnqueue(encoder.encode(data))
+                    }
                   } catch (e) {
                     // Ignore parse errors
                   }
@@ -109,11 +149,31 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
-          controller.close()
-        } catch (error) {
+          // Only send final [DONE] and close if not aborted
+          if (!req.signal?.aborted) {
+            safeEnqueue(encoder.encode('data: [DONE]\n\n'))
+            safeClose()
+          }
+        } catch (error: any) {
+          // Ignore abort errors
+          if (error?.name === 'AbortError' || req.signal?.aborted) {
+            return
+          }
           console.error('Streaming error:', error)
-          controller.error(error)
+          try {
+            controller.error(error)
+          } catch (e) {
+            // Controller might already be closed
+          }
+        } finally {
+          // Ensure reader is released
+          if (reader) {
+            try {
+              reader.releaseLock()
+            } catch (e) {
+              // Reader might already be released
+            }
+          }
         }
       },
     })

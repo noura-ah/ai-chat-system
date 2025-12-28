@@ -1,16 +1,17 @@
 'use client'
 
 import { useState, KeyboardEvent, useRef, useEffect } from 'react'
-import { Send, Loader2 } from 'lucide-react'
+import { Send, Loader2, Square } from 'lucide-react'
 
 interface MessageInputProps {
   onSend: (message: string) => void
+  onStop?: () => void
   isLoading: boolean
   mode: 'chat' | 'search'
   conversationId?: string
 }
 
-export default function MessageInput({ onSend, isLoading, mode, conversationId }: MessageInputProps) {
+export default function MessageInput({ onSend, onStop, isLoading, mode, conversationId }: MessageInputProps) {
   const [input, setInput] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const previousConversationIdRef = useRef<string | undefined>(conversationId)
@@ -124,17 +125,30 @@ export default function MessageInput({ onSend, isLoading, mode, conversationId }
           style={{ minHeight: '24px', maxHeight: '72px' }}
           disabled={isLoading}
         />
-        <button
-          onClick={(e) => handleSend(e)}
-          disabled={isLoading || !input.trim()}
-          className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <Send className="w-5 h-5" />
-          )}
-        </button>
+        {isLoading && onStop && mode === 'chat' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onStop()
+            }}
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            title="Stop generating"
+          >
+            <Square className="w-4 h-4 fill-current" />
+          </button>
+        ) : (
+          <button
+            onClick={(e) => handleSend(e)}
+            disabled={isLoading || !input.trim()}
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
+          </button>
+        )}
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
         Press Enter to send, Shift+Enter for new line

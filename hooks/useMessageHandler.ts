@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Message } from '@/types/chat'
 import { handleSearch } from './useSearchHandler'
 import { handleChatStream, createAssistantMessage } from './useChatStreamHandler'
@@ -25,6 +25,7 @@ export function useMessageHandler({
   onAddConversation,
 }: UseMessageHandlerProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const createUserMessage = (content: string): Message => ({
     id: Date.now().toString(),
@@ -104,25 +105,51 @@ export function useMessageHandler({
         let assistantMessageAdded = false
         let finalContent = ''
 
+        // Create abort controller for this stream
+        abortControllerRef.current = new AbortController()
+
         // Stream the response and add/update the message
-        await handleChatStream(content, historyWithUser, (chunk) => {
-          finalContent += chunk
-          
-          // Add the assistant message on first chunk to avoid empty bubble
-          if (!assistantMessageAdded) {
-            assistantMessageAdded = true
-            addMessage({
-              ...assistantMessage,
-              content: chunk,
-            })
-          } else {
-            // Update the specific assistant message by ID to avoid race conditions
-            updateMessageById(assistantMessage.id, (msg) => ({
-              ...msg,
-              content: msg.content + chunk,
-            }))
+        try {
+          await handleChatStream(content, historyWithUser, (chunk) => {
+            // Check if aborted before processing chunk
+            if (abortControllerRef.current?.signal.aborted) {
+              return
+            }
+
+            finalContent += chunk
+            
+            // Add the assistant message on first chunk to avoid empty bubble
+            if (!assistantMessageAdded) {
+              assistantMessageAdded = true
+              addMessage({
+                ...assistantMessage,
+                content: chunk,
+              })
+            } else {
+              // Update the specific assistant message by ID to avoid race conditions
+              updateMessageById(assistantMessage.id, (msg) => ({
+                ...msg,
+                content: msg.content + chunk,
+              }))
+            }
+          }, abortControllerRef.current.signal)
+        } catch (error: any) {
+          // If aborted, save partial message
+          if (error.name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
+            // Save partial message if we have content
+            if (assistantMessageAdded && finalContent) {
+              const partialMessage: Message = {
+                ...assistantMessage,
+                content: finalContent,
+              }
+              await saveMessage(partialMessage, currentConversationId)
+            }
+            return // Exit early, don't show error
           }
-        })
+          throw error // Re-throw if it's a different error
+        } finally {
+          abortControllerRef.current = null
+        }
 
         // If no chunks were received, add empty message or error
         if (!assistantMessageAdded) {
@@ -151,8 +178,17 @@ export function useMessageHandler({
     }
   }
 
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+      setIsLoading(false)
+    }
+  }
+
   return {
     handleSendMessage,
+    handleStop,
     isLoading,
   }
 }

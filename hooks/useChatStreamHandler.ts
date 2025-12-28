@@ -14,7 +14,8 @@ export function createAssistantMessage(): Message {
 export async function handleChatStream(
   message: string,
   history: Message[],
-  onChunk: (content: string) => void
+  onChunk: (content: string) => void,
+  abortSignal?: AbortSignal
 ): Promise<void> {
   // Convert Message[] to format expected by API
   const historyForApi = history.map((msg) => ({
@@ -22,7 +23,7 @@ export async function handleChatStream(
     content: msg.content,
   }))
 
-  const response = await chatApi.stream(message, historyForApi)
+  const response = await chatApi.stream(message, historyForApi, abortSignal)
 
   const reader = response.body?.getReader()
   const decoder = new TextDecoder()
@@ -33,8 +34,18 @@ export async function handleChatStream(
 
   try {
     while (true) {
+      // Check if aborted
+      if (abortSignal?.aborted) {
+        break
+      }
+
       const { done, value } = await reader.read()
       if (done) break
+
+      // Check again after read
+      if (abortSignal?.aborted) {
+        break
+      }
 
       const chunk = decoder.decode(value, { stream: true })
       const lines = chunk.split('\n')

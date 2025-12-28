@@ -68,7 +68,8 @@ export const chatApi = {
   // Send a chat message and get streaming response
   async stream(
     message: string,
-    history: Array<{ role: string; content: string }>
+    history: Array<{ role: string; content: string }>,
+    abortSignal?: AbortSignal
   ): Promise<Response> {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -76,6 +77,7 @@ export const chatApi = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ message, history }),
+      signal: abortSignal,
     })
 
     if (!response.ok) {

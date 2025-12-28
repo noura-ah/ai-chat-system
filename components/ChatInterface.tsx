@@ -28,7 +28,7 @@ export default function ChatInterface({ mode, conversationId, onConversationCrea
     }
   }, [messages, onMessagesChange])
   
-  const { handleSendMessage, isLoading } = useMessageHandler({
+  const { handleSendMessage, handleStop, isLoading } = useMessageHandler({
     mode,
     messages,
     conversationId,
@@ -71,7 +71,7 @@ export default function ChatInterface({ mode, conversationId, onConversationCrea
       </div>
       <div className="flex-shrink-0 py-6 w-full border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-4xl w-full mx-auto px-4">
-          <MessageInput onSend={handleSendMessage} isLoading={isLoading} mode={mode} conversationId={conversationId} />
+          <MessageInput onSend={handleSendMessage} onStop={handleStop} isLoading={isLoading} mode={mode} conversationId={conversationId} />
         </div>
       </div>
     </div>
