@@ -1,16 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MessageSquare, Plus, Trash2, X } from 'lucide-react'
 import DeleteModal from './DeleteModal'
-
-interface Conversation {
-  id: string
-  title: string | null
-  mode: string
-  updatedAt: string
-  messages: Array<{ id: string; content: string }>
-}
+import { Conversation } from '@/hooks/useConversations'
 
 interface ConversationSidebarProps {
   currentConversationId?: string
@@ -18,7 +11,9 @@ interface ConversationSidebarProps {
   onNewConversation: () => void
   isOpen: boolean
   onClose: () => void
-  refreshTrigger?: number
+  conversations: Conversation[]
+  isLoading: boolean
+  onRemoveConversation: (id: string) => void
 }
 
 export default function ConversationSidebar({
@@ -27,37 +22,13 @@ export default function ConversationSidebar({
   onNewConversation,
   isOpen,
   onClose,
-  refreshTrigger,
+  conversations,
+  isLoading,
+  onRemoveConversation,
 }: ConversationSidebarProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    loadConversations()
-  }, [])
-
-  // Refresh conversations when current conversation changes or refreshTrigger changes
-  useEffect(() => {
-    loadConversations()
-  }, [currentConversationId, refreshTrigger])
-
-  const loadConversations = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch('/api/conversations')
-      if (response.ok) {
-        const data = await response.json()
-        setConversations(data.conversations || [])
-      }
-    } catch (error) {
-      console.error('Error loading conversations:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleDeleteClick = (conversation: Conversation, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -74,7 +45,8 @@ export default function ConversationSidebar({
         method: 'DELETE',
       })
       if (response.ok) {
-        await loadConversations()
+        // Optimistically remove from list
+        onRemoveConversation(conversationToDelete.id)
         if (currentConversationId === conversationToDelete.id) {
           onNewConversation()
         }
@@ -93,12 +65,8 @@ export default function ConversationSidebar({
     setConversationToDelete(null)
   }
 
-  const handleNewConversation = async () => {
+  const handleNewConversation = () => {
     onNewConversation()
-    // Small delay to ensure state updates before refreshing
-    setTimeout(() => {
-      loadConversations()
-    }, 100)
   }
 
   const getConversationTitle = (conversation: Conversation): string => {

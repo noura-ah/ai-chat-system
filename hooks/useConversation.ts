@@ -1,12 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
-
-export function useConversation(mode: 'chat' | 'search', initialId?: string) {
-  const [conversationId, setConversationId] = useState<string | undefined>(initialId)
-
-  useEffect(() => {
-    setConversationId(initialId)
-  }, [initialId])
-
+export function useConversation(
+  mode: 'chat' | 'search',
+  initialId?: string
+) {
   const createNewConversation = async (): Promise<string | undefined> => {
     try {
       const response = await fetch('/api/conversations', {
@@ -17,7 +12,7 @@ export function useConversation(mode: 'chat' | 'search', initialId?: string) {
       if (response.ok) {
         const data = await response.json()
         const newId = data.conversation.id
-        setConversationId(newId)
+        // Don't add to list here - will be added when first message is submitted
         return newId
       }
     } catch (error) {
@@ -26,14 +21,8 @@ export function useConversation(mode: 'chat' | 'search', initialId?: string) {
     return undefined
   }
 
-  const resetConversation = useCallback(() => {
-    setConversationId(undefined)
-  }, [])
-
   return {
-    conversationId,
     createNewConversation,
-    resetConversation,
   }
 }
 

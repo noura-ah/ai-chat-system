@@ -7,11 +7,12 @@ import Header from '@/components/Header'
 import ConversationSidebar from '@/components/ConversationSidebar'
 import { deriveModeFromMessages } from '@/lib/mode'
 import { Message } from '@/types/chat'
+import { useConversations } from '@/hooks/useConversations'
 
 export default function ChatPage() {
   const { data: session } = useSession()
+  const { conversations, isLoading: isLoadingConversations, addConversation, removeConversation } = useConversations()
   const [mode, setMode] = useState<'chat' | 'search'>('chat')
-  const [intendedMode, setIntendedMode] = useState<'chat' | 'search'>('chat')
   const [messages, setMessages] = useState<Message[]>([])
   const [selectedConversationId, setSelectedConversationId] = useState<string | undefined>(() => {
     // Initialize from localStorage immediately (before session check)
@@ -22,7 +23,6 @@ export default function ChatPage() {
     return undefined
   })
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
   const hasValidatedRef = useRef(false)
 
   // Validate conversation from localStorage when session is ready (only once)
@@ -50,18 +50,15 @@ export default function ChatPage() {
   }, [session])
 
   // Compute mode from messages when messages change
-  // But only if we have messages - otherwise use intended mode
+  // Only derive mode if we have messages AND a conversation selected
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && selectedConversationId) {
+      // Only derive mode if we have messages AND a conversation selected
       const derivedMode = deriveModeFromMessages(messages)
       setMode(derivedMode)
-      setIntendedMode(derivedMode) // Keep intended mode in sync
-    } else {
-      // No messages yet, use intended mode
-      setMode(intendedMode)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]) // Only depend on messages to avoid loops
+  }, [messages, selectedConversationId]) // Only depend on messages and selectedConversationId to avoid loops
 
   // Persist conversation ID to localStorage
   useEffect(() => {
@@ -89,20 +86,18 @@ export default function ChatPage() {
   }
 
   const handleNewConversation = () => {
+    // Clear messages first, then reset conversation and mode
+    setMessages([])
     setSelectedConversationId(undefined)
-    setMessages([]) // Clear messages
-    setIntendedMode('chat') // Reset to default mode
-    setMode('chat')
+    setMode('chat') // Reset to default mode
   }
 
   const handleConversationCreated = (id: string) => {
     setSelectedConversationId(id)
-    setRefreshTrigger((prev) => prev + 1)
   }
 
   const handleModeChange = (newMode: 'chat' | 'search') => {
-    // Set intended mode for next message
-    setIntendedMode(newMode)
+    // Update mode immediately for UI and next message
     setMode(newMode)
   }
 
@@ -124,7 +119,9 @@ export default function ChatPage() {
           onNewConversation={handleNewConversation}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          refreshTrigger={refreshTrigger}
+          conversations={conversations}
+          isLoading={isLoadingConversations}
+          onRemoveConversation={removeConversation}
         />
         <div className="flex-1 flex flex-col min-h-0 lg:ml-64 overflow-hidden">
           <ChatInterface 
@@ -132,6 +129,7 @@ export default function ChatPage() {
             conversationId={selectedConversationId}
             onConversationCreated={handleConversationCreated}
             onMessagesChange={handleMessagesChange}
+            onAddConversation={addConversation}
           />
         </div>
       </div>

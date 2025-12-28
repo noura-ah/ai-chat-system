@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Message } from '@/types/chat'
 import { handleSearch } from './useSearchHandler'
 import { handleChatStream, createAssistantMessage } from './useChatStreamHandler'
+import { Conversation } from './useConversations'
 
 interface UseMessageHandlerProps {
   mode: 'chat' | 'search'
@@ -11,6 +12,7 @@ interface UseMessageHandlerProps {
   addMessage: (message: Message) => void
   updateLastMessage: (updater: (message: Message) => Message) => void
   updateMessageById: (id: string, updater: (message: Message) => Message) => void
+  onAddConversation?: (conversation: Conversation) => void
 }
 
 export function useMessageHandler({
@@ -21,6 +23,7 @@ export function useMessageHandler({
   addMessage,
   updateLastMessage,
   updateMessageById,
+  onAddConversation,
 }: UseMessageHandlerProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -29,6 +32,7 @@ export function useMessageHandler({
     role: 'user',
     content,
     timestamp: new Date(),
+    mode,
   })
 
   const createErrorMessage = (): Message => ({
@@ -64,22 +68,41 @@ export function useMessageHandler({
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return
 
-    // Create conversation if it doesn't exist (only when user sends first message)
-    let currentConversationId = conversationId
-    if (!currentConversationId) {
-      currentConversationId = await onCreateConversation()
-      if (!currentConversationId) {
-        console.error('Failed to create conversation')
-        return
-      }
-    }
-
     const userMessage = createUserMessage(content)
+    const historyWithUser = [...messages, userMessage]
     addMessage(userMessage)
-    await saveMessage(userMessage, currentConversationId)
     setIsLoading(true)
 
+    let currentConversationId = conversationId
+    // Track if we just created a new conversation (no conversationId before)
+    const wasNewConversation = !currentConversationId
+    
     try {
+      if (!currentConversationId) {
+        currentConversationId = await onCreateConversation()
+        if (!currentConversationId) {
+          throw new Error('Failed to create conversation')
+        }
+        
+        // Add conversation to sidebar immediately when user submits first message
+        if (onAddConversation && currentConversationId) {
+          const conversation: Conversation = {
+            id: currentConversationId,
+            title: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+            mode: mode,
+            updatedAt: new Date().toISOString(),
+            messages: [{
+              id: userMessage.id,
+              content: content,
+            }],
+          }
+          onAddConversation(conversation)
+        }
+      }
+
+      // Save message in background (don't wait for it)
+      saveMessage(userMessage, currentConversationId)
+
       if (mode === 'search') {
         const assistantMessage = await handleSearch(content)
         addMessage(assistantMessage)
@@ -91,7 +114,7 @@ export function useMessageHandler({
         let finalContent = ''
 
         // Stream the response and add/update the message
-        await handleChatStream(content, messages, (chunk) => {
+        await handleChatStream(content, historyWithUser, (chunk) => {
           finalContent += chunk
           
           // Add the assistant message on first chunk to avoid empty bubble
