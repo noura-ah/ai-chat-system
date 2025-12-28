@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
 import { useMessages } from '@/hooks/useMessages'
@@ -19,14 +19,15 @@ export default function ChatInterface({ mode, conversationId: externalConversati
   const { conversationId: internalConversationId, createNewConversation, resetConversation } = useConversation(mode, externalConversationId)
   const conversationId = externalConversationId || internalConversationId
   const { messages, addMessage, updateLastMessage, updateMessageById, setMessages, messagesEndRef, isLoading: isLoadingMessages } = useMessages(conversationId)
-  
+  const prevExternalConversationId = useRef<string | undefined>(externalConversationId)
+
   // Notify parent when messages change
   useEffect(() => {
     if (onMessagesChange) {
       onMessagesChange(messages)
     }
   }, [messages, onMessagesChange])
-  
+
   // Create conversation handler that also notifies parent
   const handleCreateConversation = async () => {
     const newId = await createNewConversation()
@@ -48,23 +49,14 @@ export default function ChatInterface({ mode, conversationId: externalConversati
 
   // Reset when external conversationId changes to undefined (new conversation requested)
   useEffect(() => {
-    if (externalConversationId === undefined) {
+    if (prevExternalConversationId.current !== undefined && externalConversationId === undefined) {
       resetConversation()
       setMessages([])
     }
+    prevExternalConversationId.current = externalConversationId
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalConversationId]) // Only depend on externalConversationId to avoid loops
+  }, [externalConversationId])
 
-  // Scroll when loading starts (for search or AI responses)
-  useEffect(() => {
-    if (isLoading) {
-      // Scroll when loading starts to show loading indicator
-      const timer = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [messages, isLoading, messagesEndRef])
 
   return (
     <div className="flex-1 flex flex-col h-full w-full">

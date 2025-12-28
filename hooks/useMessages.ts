@@ -5,6 +5,7 @@ export function useMessages(conversationId?: string) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const hasPendingLocalMessagesRef = useRef(false)
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior })
@@ -22,15 +23,16 @@ export function useMessages(conversationId?: string) {
       }, isLoading ? 50 : 0)
       return () => clearTimeout(timer)
     }
-  }, [isLoading])
+  }, [isLoading, messages])
 
   // Load messages from database if conversationId is provided
   useEffect(() => {
-    if (conversationId) {
-      loadMessages(conversationId)
-    } else {
-      setMessages([])
+    if (!conversationId || hasPendingLocalMessagesRef.current) {
+      hasPendingLocalMessagesRef.current = false
+      return
     }
+
+    loadMessages(conversationId)
   }, [conversationId])
 
   const loadMessages = async (id: string) => {
@@ -65,6 +67,9 @@ export function useMessages(conversationId?: string) {
   }
 
   const addMessage = (message: Message) => {
+    if (!conversationId && message.role === 'user') {
+      hasPendingLocalMessagesRef.current = true
+    }
     setMessages((prev) => [...prev, message])
   }
 
