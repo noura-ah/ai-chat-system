@@ -159,7 +159,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         </div>
         )}
         <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
-          {message.timestamp.toLocaleTimeString()}
+          {message.timestamp?.toLocaleTimeString()}
         </span>
       </div>
     </div>
