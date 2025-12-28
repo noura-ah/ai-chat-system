@@ -50,7 +50,7 @@ export default function MessageList({ messages, isLoading, mode }: MessageListPr
             <Loader2 className="w-5 h-5 animate-spin" />
           </div>
           <div className="flex-1 flex flex-col items-start">
-            <div className="rounded-2xl px-4 py-3 max-w-[80%] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-700">
+            <div className="rounded-2xl px-4 py-3 max-w-[80%] truncate break-words whitespace-normal text-gray-900 dark:text-gray-100 rounded-bl-sm">
               <div className="flex items-center gap-1.5">
                 <span className="text-gray-400 dark:text-gray-500">
                   {mode === 'search' ? 'Searching the web' : 'Thinking'}

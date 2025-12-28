@@ -19,7 +19,7 @@ export default function SearchResults({ results, images }: SearchResultsProps) {
     <div className="mt-4 ml-11 space-y-4">
       {/* Image Results */}
       {images && images.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 ">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Images
           </h3>
@@ -45,7 +45,7 @@ export default function SearchResults({ results, images }: SearchResultsProps) {
       
       {/* Text Results */}
       {results && results.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Search Results
           </h3>

@@ -109,7 +109,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
     <div className="dark:border-gray-700 pt-4">
       <div 
         onClick={handleContainerClick}
-        className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-3 shadow-sm cursor-text"
+        className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm cursor-text"
       >
         <textarea
           ref={textareaRef}
@@ -140,7 +140,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
           <button
             onClick={(e) => handleSend(e)}
             disabled={isLoading || !input.trim()}
-            className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />

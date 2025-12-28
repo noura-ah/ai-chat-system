@@ -146,8 +146,8 @@ export default function ConversationSidebar({
                   }}
                   className={`group relative p-3 rounded-lg mb-2 cursor-pointer transition-colors ${
                     currentConversationId === conversation.id
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-slate-100 dark:bg-gray-700 dark:hover:bg-gray-600'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-600'
                   }`}
                 >
                   <div className="flex items-start gap-2">

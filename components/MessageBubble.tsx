@@ -4,6 +4,8 @@ import { Message } from '@/types/chat'
 import { User, Bot, Search } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface MessageBubbleProps {
   message: Message
@@ -22,7 +24,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       <div
         className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
           isUser
-            ? 'bg-blue-500 text-white'
+            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
             : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
         }`}
       >
@@ -41,10 +43,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       >
         {message.content && (
         <div
-          className={`rounded-2xl px-4 py-3 max-w-[60%] ${
+          className={`rounded-2xl px-4 py-3 max-w-[80%] truncate break-words whitespace-normal ${
             isUser
-              ? 'bg-blue-500 text-white rounded-br-sm'
-              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-700'
+              ? 'bg-gray-800 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-br-sm'
+              : 'text-gray-900 dark:text-gray-100 rounded-bl-sm'
           }`}
         >
           {isUser ? (
@@ -52,7 +54,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           ) : (
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              className="break-words"
+              className="truncate break-words whitespace-normal"
               components={{
                 // Style tables
                 table: ({ children }) => (
@@ -63,7 +65,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   </div>
                 ),
                 thead: ({ children }) => (
-                  <thead className="bg-gray-100 dark:bg-gray-700">{children}</thead>
+                  <thead className="bg-gray-100 dark:bg-gray-800">{children}</thead>
                 ),
                 tbody: ({ children }) => (
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
@@ -86,25 +88,32 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   </td>
                 ),
                 // Style code blocks
-                code: ({ className, children, ...props }) => {
+                code: ({ className, children, ...props }: any) => {
                   const isInline = !className
-                  return isInline ? (
-                    <code
-                      className={`px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-sm font-mono ${
-                        isUser ? 'bg-blue-400/30 text-white' : ''
-                      }`}
+                  const match = /language-(\w+)/.exec(className || "");
+                  return !isInline && match ? (
+                    <SyntaxHighlighter
+                      className="overflow-x-auto p-3 !text-sm rounded-lg my-2 !bg-gray-100 dark:!bg-gray-800 border border-gray-200 dark:border-gray-700" 
+                      style={materialDark}    
+                      language={match[1]}
+                      PreTag="div"
+                      customStyle={{ background: "#1f2937" }}
+                      codeTagProps={{ style: { background: "transparent" } }}
                       {...props}
                     >
-                      {children}
-                    </code>
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
                   ) : (
-                    <code className={className} {...props}>
+                    <code
+                      className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-sm font-mono"
+                      {...props}
+                    >
                       {children}
                     </code>
                   )
                 },
                 pre: ({ children }) => (
-                  <pre className="overflow-x-auto p-3 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 my-2">
+                  <pre className="overflow-x-auto p-3 rounded-lg  my-2">
                     {children}
                   </pre>
                 ),
@@ -140,11 +149,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`underline ${
-                      isUser
-                        ? 'text-blue-100 hover:text-white'
-                        : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300'
-                    }`}
+                    className="underline text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-300"
                   >
                     {children}
                   </a>

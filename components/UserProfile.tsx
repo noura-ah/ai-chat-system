@@ -39,7 +39,7 @@ export default function UserProfile({ session, onLogout }: UserProfileProps) {
             />
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center text-white text-xs font-medium">
+          <div className="w-8 h-8 rounded-full bg-gray-600 dark:bg-gray-700 flex items-center justify-center text-white text-xs font-medium">
             {userInitials}
           </div>
         )}
