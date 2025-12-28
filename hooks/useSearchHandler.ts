@@ -1,27 +1,10 @@
 import { Message } from '@/types/chat'
-
-interface SearchResponse {
-  results?: Array<{ title: string; link: string; snippet: string }>
-  images?: Array<{ url: string; title?: string }>
-  summary?: string
-}
+import { searchApi } from '@/lib/api'
 
 export async function handleSearch(
   query: string
 ): Promise<Message> {
-  const response = await fetch('/api/search', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ query }),
-  })
-
-  if (!response.ok) {
-    throw new Error('Search failed')
-  }
-
-  const data: SearchResponse = await response.json()
+  const data = await searchApi.search(query)
 
   return {
     id: (Date.now() + 1).toString(),

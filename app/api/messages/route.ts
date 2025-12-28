@@ -12,21 +12,13 @@ export async function POST(req: NextRequest) {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    const {
-      conversationId,
-      role,
-      content,
-      mode,
-      searchResults,
-      images,
-    }: {
-      conversationId: string
-      role: 'user' | 'assistant'
-      content: string
-      mode?: 'chat' | 'search'
-      searchResults?: Array<{ title: string; link: string; snippet: string }>
-      images?: Array<{ url: string; title?: string }>
-    } = await req.json()
+    const requestData: Omit<Message, 'id' | 'timestamp'> & { conversationId: string } = await req.json()
+    
+    const { conversationId, role, content, mode, searchResults, images } = requestData
+    
+    if (!conversationId) {
+      return new Response('conversationId is required', { status: 400 })
+    }
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -105,6 +97,7 @@ export async function POST(req: NextRequest) {
     // Convert to Message type
     const messageResponse: Message = {
       id: message.id,
+      conversationId: message.conversationId,
       role: message.role as 'user' | 'assistant',
       content: message.content,
       timestamp: message.createdAt,

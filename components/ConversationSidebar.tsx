@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MessageSquare, Plus, Trash2, X } from 'lucide-react'
 import DeleteModal from './DeleteModal'
 import { Conversation } from '@/hooks/useConversations'
+import { conversationsApi } from '@/lib/api'
 
 interface ConversationSidebarProps {
   currentConversationId?: string
@@ -41,18 +42,14 @@ export default function ConversationSidebar({
 
     setIsDeleting(true)
     try {
-      const response = await fetch(`/api/conversations/${conversationToDelete.id}`, {
-        method: 'DELETE',
-      })
-      if (response.ok) {
-        // Optimistically remove from list
-        onRemoveConversation(conversationToDelete.id)
-        if (currentConversationId === conversationToDelete.id) {
-          onNewConversation()
-        }
-        setDeleteModalOpen(false)
-        setConversationToDelete(null)
+      await conversationsApi.delete(conversationToDelete.id)
+      // Optimistically remove from list
+      onRemoveConversation(conversationToDelete.id)
+      if (currentConversationId === conversationToDelete.id) {
+        onNewConversation()
       }
+      setDeleteModalOpen(false)
+      setConversationToDelete(null)
     } catch (error) {
       console.error('Error deleting conversation:', error)
     } finally {

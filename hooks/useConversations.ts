@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { conversationsApi } from '@/lib/api'
 
 export interface Conversation {
   id: string
@@ -23,11 +24,8 @@ export function useConversations() {
   const loadConversations = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/conversations')
-      if (response.ok) {
-        const data = await response.json()
-        setConversations(data.conversations || [])
-      }
+      const data = await conversationsApi.getAll()
+      setConversations(data.conversations || [])
     } catch (error) {
       console.error('Error loading conversations:', error)
     } finally {
@@ -41,28 +39,25 @@ export function useConversations() {
     if (isSyncingRef.current) return // Prevent concurrent syncs
     isSyncingRef.current = true
     try {
-      const response = await fetch('/api/conversations')
-      if (response.ok) {
-        const data = await response.json()
-        setConversations((prev) => {
-          const synced = data.conversations || []
-          const syncedIds = new Set(synced.map((conv: Conversation) => conv.id))
-          
-          // Start with synced conversations, preserving optimistic titles
-          const merged = synced.map((syncedConv: Conversation) => {
-            const optimistic = prev.find((c) => c.id === syncedConv.id)
-            // If we have an optimistic version with a title and synced doesn't, keep optimistic title
-            if (optimistic && optimistic.title && (!syncedConv.title || syncedConv.title === 'New Conversation')) {
-              return { ...syncedConv, title: optimistic.title }
-            }
-            return syncedConv
-          })
-          
-          // Add any optimistic conversations that aren't in synced yet (newly created)
-          const optimisticOnly = prev.filter((conv) => !syncedIds.has(conv.id))
-          return [...optimisticOnly, ...merged]
+      const data = await conversationsApi.getAll()
+      setConversations((prev) => {
+        const synced = data.conversations || []
+        const syncedIds = new Set(synced.map((conv: Conversation) => conv.id))
+        
+        // Start with synced conversations, preserving optimistic titles
+        const merged = synced.map((syncedConv: Conversation) => {
+          const optimistic = prev.find((c) => c.id === syncedConv.id)
+          // If we have an optimistic version with a title and synced doesn't, keep optimistic title
+          if (optimistic && optimistic.title && (!syncedConv.title || syncedConv.title === 'New Conversation')) {
+            return { ...syncedConv, title: optimistic.title }
+          }
+          return syncedConv
         })
-      }
+        
+        // Add any optimistic conversations that aren't in synced yet (newly created)
+        const optimisticOnly = prev.filter((conv) => !syncedIds.has(conv.id))
+        return [...optimisticOnly, ...merged]
+      })
     } catch (error) {
       console.error('Error syncing conversations:', error)
     } finally {

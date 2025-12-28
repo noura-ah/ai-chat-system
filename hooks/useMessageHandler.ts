@@ -3,6 +3,7 @@ import { Message } from '@/types/chat'
 import { handleSearch } from './useSearchHandler'
 import { handleChatStream, createAssistantMessage } from './useChatStreamHandler'
 import { Conversation } from './useConversations'
+import { messagesApi } from '@/lib/api'
 
 interface UseMessageHandlerProps {
   mode: 'chat' | 'search'
@@ -42,21 +43,17 @@ export function useMessageHandler({
   })
 
   const saveMessage = async (message: Message, conversationIdToUse?: string) => {
-    const id = conversationIdToUse || conversationId
-    if (!id) return
+    const conversationIdToSave = conversationIdToUse || conversationId
+    if (!conversationIdToSave) return
 
     try {
-      await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversationId: id,
-          role: message.role,
-          content: message.content,
-          mode: message.mode,
-          searchResults: message.searchResults,
-          images: message.images,
-        }),
+      await messagesApi.save({
+        conversationId: conversationIdToSave, // This is the conversation ID, not the message ID
+        role: message.role,
+        content: message.content,
+        mode: message.mode,
+        searchResults: message.searchResults,
+        images: message.images,
       })
     } catch (error) {
       console.error('Error saving message:', error)

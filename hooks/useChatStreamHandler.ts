@@ -1,4 +1,5 @@
 import { Message } from '@/types/chat'
+import { chatApi } from '@/lib/api'
 
 export function createAssistantMessage(): Message {
   return {
@@ -15,17 +16,13 @@ export async function handleChatStream(
   history: Message[],
   onChunk: (content: string) => void
 ): Promise<void> {
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ message, history }),
-  })
+  // Convert Message[] to format expected by API
+  const historyForApi = history.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }))
 
-  if (!response.ok) {
-    throw new Error('Chat failed')
-  }
+  const response = await chatApi.stream(message, historyForApi)
 
   const reader = response.body?.getReader()
   const decoder = new TextDecoder()

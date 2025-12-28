@@ -1,21 +1,15 @@
+import { conversationsApi } from '@/lib/api'
+
 export function useConversation(mode: 'chat' | 'search') {
   const createNewConversation = async (): Promise<string | undefined> => {
     try {
-      const response = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        const newId = data.conversation.id
-        // Don't add to list here - will be added when first message is submitted
-        return newId
-      }
+      const data = await conversationsApi.create(mode)
+      // Don't add to list here - will be added when first message is submitted
+      return data.conversation.id
     } catch (error) {
       console.error('Error creating conversation:', error)
+      return undefined
     }
-    return undefined
   }
 
   return {

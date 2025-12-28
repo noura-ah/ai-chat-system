@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Message } from '@/types/chat'
+import { conversationsApi } from '@/lib/api'
 
 export function useMessages(conversationId?: string) {
   const [messages, setMessages] = useState<Message[]>([])
@@ -59,27 +60,25 @@ export function useMessages(conversationId?: string) {
   const loadMessages = async (id: string) => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/conversations/${id}`)
-      if (response.ok) {
-        const data = await response.json()
-        const loadedMessages: Message[] = data.conversation.messages.map((msg: any) => ({
-          id: msg.id,
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content,
-          timestamp: new Date(msg.createdAt),
-          mode: msg.mode as 'chat' | 'search' | undefined,
-          searchResults: msg.searchResults?.map((r: any) => ({
-            title: r.title,
-            link: r.link,
-            snippet: r.snippet,
-          })),
-          images: msg.images?.map((img: any) => ({
-            url: img.url,
-            title: img.title || undefined,
-          })),
-        }))
-        setMessages(loadedMessages)
-      }
+      const data = await conversationsApi.getById(id)
+      const loadedMessages: Message[] = data.conversation.messages.map((msg: any) => ({
+        id: msg.id,
+        conversationId: id, // Use the conversationId from the function parameter
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        timestamp: new Date(msg.createdAt),
+        mode: msg.mode as 'chat' | 'search' | undefined,
+        searchResults: msg.searchResults?.map((r: any) => ({
+          title: r.title,
+          link: r.link,
+          snippet: r.snippet,
+        })),
+        images: msg.images?.map((img: any) => ({
+          url: img.url,
+          title: img.title || undefined,
+        })),
+      }))
+      setMessages(loadedMessages)
     } catch (error) {
       console.error('Error loading messages:', error)
     } finally {
