@@ -10,9 +10,8 @@ interface UseMessageHandlerProps {
   conversationId?: string
   onCreateConversation: () => Promise<string | undefined>
   addMessage: (message: Message) => void
-  updateLastMessage: (updater: (message: Message) => Message) => void
   updateMessageById: (id: string, updater: (message: Message) => Message) => void
-  onAddConversation?: (conversation: Conversation) => void
+  onAddConversation: (conversation: Conversation) => void
 }
 
 export function useMessageHandler({
@@ -21,7 +20,6 @@ export function useMessageHandler({
   conversationId,
   onCreateConversation,
   addMessage,
-  updateLastMessage,
   updateMessageById,
   onAddConversation,
 }: UseMessageHandlerProps) {
@@ -74,8 +72,6 @@ export function useMessageHandler({
     setIsLoading(true)
 
     let currentConversationId = conversationId
-    // Track if we just created a new conversation (no conversationId before)
-    const wasNewConversation = !currentConversationId
     
     try {
       if (!currentConversationId) {
@@ -85,19 +81,17 @@ export function useMessageHandler({
         }
         
         // Add conversation to sidebar immediately when user submits first message
-        if (onAddConversation && currentConversationId) {
-          const conversation: Conversation = {
-            id: currentConversationId,
-            title: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
-            mode: mode,
-            updatedAt: new Date().toISOString(),
-            messages: [{
-              id: userMessage.id,
-              content: content,
-            }],
-          }
-          onAddConversation(conversation)
+        const conversation: Conversation = {
+          id: currentConversationId,
+          title: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+          mode: mode,
+          updatedAt: new Date().toISOString(),
+          messages: [{
+            id: userMessage.id,
+            content: content,
+          }],
         }
+        onAddConversation(conversation)
       }
 
       // Save message in background (don't wait for it)

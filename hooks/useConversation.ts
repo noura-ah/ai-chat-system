@@ -1,7 +1,4 @@
-export function useConversation(
-  mode: 'chat' | 'search',
-  initialId?: string
-) {
+export function useConversation(mode: 'chat' | 'search') {
   const createNewConversation = async (): Promise<string | undefined> => {
     try {
       const response = await fetch('/api/conversations', {

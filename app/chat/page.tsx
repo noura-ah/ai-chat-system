@@ -25,40 +25,33 @@ export default function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const hasValidatedRef = useRef(false)
 
-  // Validate conversation from localStorage when session is ready (only once)
+  // Validate conversation from localStorage against loaded conversations (only once after conversations load)
   useEffect(() => {
-    if (session?.user && !hasValidatedRef.current && typeof window !== 'undefined') {
+    // Only validate once, when session is ready and conversations have finished loading
+    if (session?.user && !isLoadingConversations && !hasValidatedRef.current && typeof window !== 'undefined') {
       hasValidatedRef.current = true
       const savedId = localStorage.getItem('selectedConversationId')
       if (savedId) {
-        // Validate that the conversation still exists
-        fetch(`/api/conversations/${savedId}`)
-          .then((res) => {
-            if (!res.ok) {
-              // Conversation doesn't exist, clear it
-              setSelectedConversationId(undefined)
-              localStorage.removeItem('selectedConversationId')
-            }
-          })
-          .catch(() => {
-            // Error validating, clear it
-            setSelectedConversationId(undefined)
-            localStorage.removeItem('selectedConversationId')
-          })
+        // Check if the conversation exists in the loaded conversations list
+        const conversationExists = conversations.some(conv => conv.id === savedId)
+        if (!conversationExists) {
+          // Conversation doesn't exist in the list, clear it
+          setSelectedConversationId(undefined)
+          localStorage.removeItem('selectedConversationId')
+        }
       }
     }
-  }, [session])
+  }, [session, conversations, isLoadingConversations])
 
   // Compute mode from messages when messages change
   // Only derive mode if we have messages AND a conversation selected
   useEffect(() => {
     if (messages.length > 0 && selectedConversationId) {
-      // Only derive mode if we have messages AND a conversation selected
       const derivedMode = deriveModeFromMessages(messages)
       setMode(derivedMode)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages, selectedConversationId]) // Only depend on messages and selectedConversationId to avoid loops
+  }, [messages, selectedConversationId])
 
   // Persist conversation ID to localStorage
   useEffect(() => {

@@ -36,7 +36,7 @@ export function useConversations() {
   }
 
   // Background sync (silent, doesn't show loading state) - only when adding new conversation
-  // Merges synced conversations with optimistic ones, preserving optimistic titles
+  // Merges synced conversations with optimistic ones, preserving optimistic titles and new conversations
   const syncConversations = useCallback(async () => {
     if (isSyncingRef.current) return // Prevent concurrent syncs
     isSyncingRef.current = true
@@ -46,11 +46,10 @@ export function useConversations() {
         const data = await response.json()
         setConversations((prev) => {
           const synced = data.conversations || []
-          // Create a map of synced conversations by ID
-          const syncedMap = new Map(synced.map((conv: Conversation) => [conv.id, conv]))
+          const syncedIds = new Set(synced.map((conv: Conversation) => conv.id))
           
-          // Merge: use synced data, but preserve optimistic titles if synced title is null/empty
-          return synced.map((syncedConv: Conversation) => {
+          // Start with synced conversations, preserving optimistic titles
+          const merged = synced.map((syncedConv: Conversation) => {
             const optimistic = prev.find((c) => c.id === syncedConv.id)
             // If we have an optimistic version with a title and synced doesn't, keep optimistic title
             if (optimistic && optimistic.title && (!syncedConv.title || syncedConv.title === 'New Conversation')) {
@@ -58,6 +57,10 @@ export function useConversations() {
             }
             return syncedConv
           })
+          
+          // Add any optimistic conversations that aren't in synced yet (newly created)
+          const optimisticOnly = prev.filter((conv) => !syncedIds.has(conv.id))
+          return [...optimisticOnly, ...merged]
         })
       }
     } catch (error) {

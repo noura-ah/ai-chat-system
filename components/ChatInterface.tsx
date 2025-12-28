@@ -14,12 +14,12 @@ interface ChatInterfaceProps {
   conversationId?: string
   onConversationCreated?: (id: string) => void
   onMessagesChange?: (messages: Message[]) => void
-  onAddConversation?: (conversation: Conversation) => void
+  onAddConversation: (conversation: Conversation) => void
 }
 
 export default function ChatInterface({ mode, conversationId, onConversationCreated, onMessagesChange, onAddConversation }: ChatInterfaceProps) {
-  const { createNewConversation } = useConversation(mode, conversationId)
-  const { messages, addMessage, updateLastMessage, updateMessageById, setMessages, messagesEndRef, isLoading: isLoadingMessages } = useMessages(conversationId)
+  const { createNewConversation } = useConversation(mode)
+  const { messages, addMessage, updateMessageById, setMessages, messagesEndRef, isLoading: isLoadingMessages } = useMessages(conversationId)
   
   // Notify parent when messages change
   useEffect(() => {
@@ -28,22 +28,18 @@ export default function ChatInterface({ mode, conversationId, onConversationCrea
     }
   }, [messages, onMessagesChange])
   
-  // Create conversation handler that also notifies parent
-  const handleCreateConversation = async () => {
-    const newId = await createNewConversation()
-    if (newId && onConversationCreated) {
-      onConversationCreated(newId)
-    }
-    return newId
-  }
-
   const { handleSendMessage, isLoading } = useMessageHandler({
     mode,
     messages,
     conversationId,
-    onCreateConversation: handleCreateConversation,
+    onCreateConversation: async () => {
+      const newId = await createNewConversation()
+      if (newId && onConversationCreated) {
+        onConversationCreated(newId)
+      }
+      return newId
+    },
     addMessage,
-    updateLastMessage,
     updateMessageById,
     onAddConversation,
   })
@@ -54,18 +50,7 @@ export default function ChatInterface({ mode, conversationId, onConversationCrea
       setMessages([])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId]) // Only depend on conversationId to avoid loops
-
-  // Scroll when loading starts (for search or AI responses)
-  useEffect(() => {
-    if (isLoading) {
-      // Scroll when loading starts to show loading indicator
-      const timer = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [messages, isLoading, messagesEndRef])
+  }, [conversationId])
 
   return (
     <div className="flex-1 flex flex-col h-full w-full relative">

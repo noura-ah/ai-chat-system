@@ -5,7 +5,7 @@ export function useMessages(conversationId?: string) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const hasPendingLocalMessagesRef = useRef(false)
+  const lastConversationIdRef = useRef<string | undefined>(undefined)
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior })
@@ -27,13 +27,34 @@ export function useMessages(conversationId?: string) {
 
   // Load messages from database if conversationId is provided
   useEffect(() => {
-    if (!conversationId || hasPendingLocalMessagesRef.current) {
-      hasPendingLocalMessagesRef.current = false
+    if (!conversationId) {
+      // Clear messages when conversationId becomes undefined
+      if (lastConversationIdRef.current !== undefined) {
+        setMessages([])
+        lastConversationIdRef.current = undefined
+      }
       return
     }
-
-    loadMessages(conversationId)
-  }, [conversationId])
+    
+    // Only load if conversationId changed to a different conversation
+    if (conversationId !== lastConversationIdRef.current) {
+      const previousId = lastConversationIdRef.current
+      lastConversationIdRef.current = conversationId
+      
+      // If switching from undefined to a conversation (new conversation just created)
+      // and we already have messages, don't load (preserve local messages)
+      // Otherwise, clear and load (switching between existing conversations)
+      if (previousId === undefined && messages.length > 0) {
+        // Don't load - we just created this conversation and have local messages
+        return
+      }
+      
+      // Clear and load for existing conversations
+      setMessages([])
+      loadMessages(conversationId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]) // Only depend on conversationId to avoid re-running when messages change
 
   const loadMessages = async (id: string) => {
     setIsLoading(true)
@@ -67,22 +88,7 @@ export function useMessages(conversationId?: string) {
   }
 
   const addMessage = (message: Message) => {
-    if (!conversationId && message.role === 'user') {
-      hasPendingLocalMessagesRef.current = true
-    }
     setMessages((prev) => [...prev, message])
-  }
-
-  const updateLastMessage = (updater: (message: Message) => Message) => {
-    setMessages((prev) => {
-      if (prev.length === 0) return prev
-      const updated = [...prev]
-      const lastMessage = updated[updated.length - 1]
-      if (lastMessage) {
-        updated[updated.length - 1] = updater(lastMessage)
-      }
-      return updated
-    })
   }
 
   const updateMessageById = (id: string, updater: (message: Message) => Message) => {
@@ -98,7 +104,6 @@ export function useMessages(conversationId?: string) {
   return {
     messages,
     addMessage,
-    updateLastMessage,
     updateMessageById,
     setMessages,
     messagesEndRef,
