@@ -63,7 +63,6 @@ export function useConversations() {
     } finally {
       isSyncingRef.current = false
     }
-    console.log('conversations', conversations)
   }, [])
 
   // Optimistically add a new conversation

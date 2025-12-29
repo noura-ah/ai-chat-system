@@ -69,11 +69,25 @@ npm run db:studio
 
 ## API Endpoints
 
-- `GET /api/conversations` - List all conversations
+### Authentication
+- `GET /api/auth/[...nextauth]` - NextAuth authentication handlers
+- `POST /api/auth/[...nextauth]` - NextAuth authentication handlers
+
+### Conversations (Database)
+- `GET /api/conversations` - List all conversations for the current user
 - `POST /api/conversations` - Create new conversation
 - `GET /api/conversations/[id]` - Get conversation with messages
 - `DELETE /api/conversations/[id]` - Delete conversation
-- `POST /api/messages` - Save a message
+
+### Messages (Database)
+- `POST /api/messages` - Save a message to the database
+
+### Chat & Search
+- `POST /api/chat` - Stream AI chat responses (Server-Sent Events)
+- `POST /api/search` - Perform web search and return results
+
+### Health
+- `GET /api/health` - Health check endpoint
 
 ## Troubleshooting
 
