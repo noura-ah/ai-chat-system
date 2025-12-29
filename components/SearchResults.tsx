@@ -16,39 +16,35 @@ interface SearchResultsProps {
 
 export default function SearchResults({ results, images }: SearchResultsProps) {
   return (
-    <div className="mt-4 ml-11 space-y-4">
+    <div className="mt-2 space-y-4 w-full min-w-0">
       {/* Image Results */}
       {images && images.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 ">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            Images
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {images.slice(0, 8).map((image, index) => (
-              <div
-                key={index}
-                className="relative aspect-square rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 group cursor-pointer"
-              >
-                <Image
-                  src={image.url}
-                  alt={image.title || `Search result ${index + 1}`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                  unoptimized
-                />
-              </div>
-            ))}
+        <div className="px-4 py-3 break-words whitespace-normal text-gray-900 dark:text-gray-100 w-full">
+          <div className="overflow-x-auto -mx-4 px-4">
+            <div className="flex gap-3" style={{ width: 'max-content', minWidth: '100%' }}>
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative flex-shrink-0 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 group cursor-pointer"
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.title || `Search result ${index + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                    sizes="128px"
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
       
       {/* Text Results */}
       {results && results.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            Search Results
-          </h3>
+        <div className="px-4 py-3 break-words whitespace-normal text-gray-900 dark:text-gray-100 w-full">
           <div className="space-y-3">
             {results.slice(0, 5).map((result, index) => (
               <a
@@ -56,12 +52,12 @@ export default function SearchResults({ results, images }: SearchResultsProps) {
                 href={result.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-3 bg-white dark:bg-gray-700 rounded-lg hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-600"
+                className="block p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-600"
               >
                 <div className="flex items-start gap-2">
                   <ExternalLink className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-blue-600 dark:text-blue-400 truncate">
+                    <h4 className="text-sm font-medium text-slate-600 dark:text-slate-400 truncate">
                       {result.title}
                     </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">

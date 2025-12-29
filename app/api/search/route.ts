@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
     return new Response(
       JSON.stringify({
         results,
-        images: images?.slice(0, 4),
+        images: images?.slice(0, 10),
         summary,
       }),
       {
