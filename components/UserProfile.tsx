@@ -43,7 +43,7 @@ export default function UserProfile({ session, onLogout }: UserProfileProps) {
             {userInitials}
           </div>
         )}
-        <span className="text-sm text-gray-700 dark:text-gray-300">
+        <span className="text-sm text-gray-700 dark:text-gray-300 hidden lg:block">
           {session.user?.name || session.user?.email}
         </span>
       </div>
@@ -52,7 +52,7 @@ export default function UserProfile({ session, onLogout }: UserProfileProps) {
         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         <LogOut className="w-4 h-4" />
-        Logout
+        <span className="hidden lg:block">Logout</span>
       </button>
     </div>
   )

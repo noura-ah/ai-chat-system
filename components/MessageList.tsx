@@ -32,9 +32,9 @@ export default function MessageList({ messages, isLoading, mode }: MessageListPr
   const shouldShowLoadingBubble = isLoading && lastMessage?.role === 'user'
 
   return (
-    <div className="space-y-4 py-4">
+    <div className="space-y-4 py-4 w-full min-w-0">
       {messages.map((message) => (
-        <div key={message.id}>
+        <div key={message.id} className="w-full min-w-0">
           <MessageBubble message={message} />
           {(message.searchResults || message.images) && (
             <SearchResults

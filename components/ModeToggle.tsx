@@ -19,7 +19,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
         }`}
       >
         <MessageSquare className="w-4 h-4" />
-        Chat
+        <span className="hidden lg:block">Chat</span>
       </button>
       <button
         onClick={() => onModeChange('search')}
@@ -30,7 +30,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
         }`}
       >
         <Search className="w-4 h-4" />
-        Search
+        <span className="hidden lg:block">Search</span>
       </button>
     </div>
   )

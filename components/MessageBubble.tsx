@@ -17,12 +17,12 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div
-      className={`flex gap-3 ${
+      className={`flex gap-3 w-full min-w-0 ${
         isUser ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
       <div
-        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+        className={`hidden lg:flex flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
           isUser
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
             : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
@@ -37,29 +37,41 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         )}
       </div>
       <div
-        className={`flex-1 ${
+        className={`flex-1 min-w-0 ${
           isUser ? 'items-end' : 'items-start'
         } flex flex-col`}
       >
         {message.content && (
         <div
-          className={`rounded-2xl px-4 py-3 max-w-[80%] truncate break-words whitespace-normal ${
+          className={`rounded-2xl px-4 py-3 break-words whitespace-normal ${
             isUser
-              ? 'bg-gray-800 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-br-sm'
-              : 'text-gray-900 dark:text-gray-100 rounded-bl-sm'
+              ? 'bg-gray-800 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-br-sm lg:max-w-[80%]'
+              : 'text-gray-900 dark:text-gray-100 rounded-bl-sm w-full'
           }`}
         >
           {isUser ? (
             <p className="break-words whitespace-pre-wrap">{message.content}</p>
           ) : (
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              className="truncate break-words whitespace-normal"
-              components={{
+            <div className="w-full min-w-0 max-w-full overflow-hidden">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                className="break-words whitespace-normal w-full max-w-full"
+                components={{
                 // Style tables
                 table: ({ children }) => (
-                  <div className="overflow-x-auto my-2">
-                    <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
+                  <div 
+                    className="my-2 text-sm" 
+                    style={{ 
+                      width: '100%', 
+                      maxWidth: '100%', 
+                      overflowX: 'auto',
+                      overflowY: 'visible'
+                    }}
+                  >
+                    <table 
+                      className="border-collapse border border-gray-300 dark:border-gray-600" 
+                      style={{ width: '100%', tableLayout: 'auto' }}
+                    >
                       {children}
                     </table>
                   </div>
@@ -78,12 +90,12 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   </tr>
                 ),
                 th: ({ children }) => (
-                  <th className="px-4 py-2 text-left font-semibold border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-2 text-left font-semibold border border-gray-300 dark:border-gray-600 break-words whitespace-normal">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="px-4 py-2 border border-gray-300 dark:border-gray-600">
+                  <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 break-words whitespace-normal">
                     {children}
                   </td>
                 ),
@@ -92,17 +104,45 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   const isInline = !className
                   const match = /language-(\w+)/.exec(className || "");
                   return !isInline && match ? (
-                    <SyntaxHighlighter
-                      className="overflow-x-auto p-3 !text-sm rounded-lg my-2 !bg-gray-100 dark:!bg-gray-800 border border-gray-200 dark:border-gray-700" 
-                      style={materialDark}    
-                      language={match[1]}
-                      PreTag="div"
-                      customStyle={{ background: "#1f2937" }}
-                      codeTagProps={{ style: { background: "transparent" } }}
-                      {...props}
+                    <div 
+                      className="my-2 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                      style={{ 
+                        contain: 'inline-size layout'
+                      } as React.CSSProperties}
                     >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
+                      <div 
+                        className="overflow-x-auto p-4"
+                        style={{ 
+                          width: '100%',
+                          maxWidth: '100%'
+                        }}
+                      >
+                        <SyntaxHighlighter
+                          className="!text-sm !bg-transparent !p-0" 
+                          style={materialDark}    
+                          language={match[1]}
+                          PreTag="div"
+                          customStyle={{ 
+                            background: "transparent",
+                            margin: 0,
+                            padding: 0,
+                            display: 'block',
+                            boxSizing: 'border-box',
+                            width: 'max-content',
+                            minWidth: '100%'
+                          }}
+                          codeTagProps={{ 
+                            style: { 
+                              background: "transparent",
+                              whiteSpace: 'pre'
+                            } 
+                          }}
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
+                      </div>
+                    </div>
                   ) : (
                     <code
                       className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-sm font-mono"
@@ -113,9 +153,11 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   )
                 },
                 pre: ({ children }) => (
-                  <pre className="overflow-x-auto p-3 rounded-lg  my-2">
-                    {children}
-                  </pre>
+                  <div className="w-full my-2" style={{ width: '100%', maxWidth: '100%', overflowX: 'auto' }}>
+                    <pre className="p-3 rounded-lg" style={{ width: 'max-content', minWidth: '100%', display: 'block' }}>
+                      {children}
+                    </pre>
+                  </div>
                 ),
                 // Style headers
                 h1: ({ children }) => (
@@ -157,9 +199,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                 // Style horizontal rules
                 hr: () => <hr className="my-4 border-gray-300 dark:border-gray-600" />,
               }}
-            >
-              {message.content}
-            </ReactMarkdown>
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
           )}
         </div>
         )}

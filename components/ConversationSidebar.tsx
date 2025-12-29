@@ -151,7 +151,6 @@ export default function ConversationSidebar({
                   }`}
                 >
                   <div className="flex items-start gap-2">
-                    <MessageSquare className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-1 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {getConversationTitle(conversation)}
