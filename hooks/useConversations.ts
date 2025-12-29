@@ -63,15 +63,14 @@ export function useConversations() {
     } finally {
       isSyncingRef.current = false
     }
+    console.log('conversations', conversations)
   }, [])
 
   // Optimistically add a new conversation
   const addConversation = useCallback((conversation: Conversation) => {
     setConversations((prev) => [conversation, ...prev])
-    // Sync in background after a short delay to allow API to set the title
-    setTimeout(() => {
-      syncConversations()
-    }, 500)
+    // Sync in background (optimistic title will be preserved until API sets it)
+    syncConversations()
   }, [syncConversations])
 
   // Optimistically update a conversation (e.g., when title changes)
@@ -86,18 +85,12 @@ export function useConversations() {
     setConversations((prev) => prev.filter((conv) => conv.id !== id))
   }, [])
 
-  // Force refresh (for manual refresh if needed)
-  const refresh = useCallback(() => {
-    loadConversations()
-  }, [])
-
   return {
     conversations,
     isLoading,
     addConversation,
     updateConversation,
     removeConversation,
-    refresh,
   }
 }
 

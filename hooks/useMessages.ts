@@ -2,8 +2,13 @@ import { useState, useRef, useEffect } from 'react'
 import { Message } from '@/types/chat'
 import { conversationsApi } from '@/lib/api'
 
-export function useMessages(conversationId?: string) {
-  const [messages, setMessages] = useState<Message[]>([])
+interface UseMessagesProps {
+  conversationId?: string
+  messages: Message[]
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+}
+
+export function useMessages({ conversationId, messages, setMessages }: UseMessagesProps) {
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastConversationIdRef = useRef<string | undefined>(undefined)
@@ -101,10 +106,8 @@ export function useMessages(conversationId?: string) {
   }
 
   return {
-    messages,
     addMessage,
     updateMessageById,
-    setMessages,
     messagesEndRef,
     isLoading,
   }

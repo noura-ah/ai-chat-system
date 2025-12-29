@@ -12,21 +12,15 @@ import { Conversation } from '@/hooks/useConversations'
 interface ChatInterfaceProps {
   mode: 'chat' | 'search'
   conversationId?: string
+  messages: Message[]
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   onConversationCreated?: (id: string) => void
-  onMessagesChange?: (messages: Message[]) => void
   onAddConversation: (conversation: Conversation) => void
 }
 
-export default function ChatInterface({ mode, conversationId, onConversationCreated, onMessagesChange, onAddConversation }: ChatInterfaceProps) {
+export default function ChatInterface({ mode, conversationId, messages, setMessages, onConversationCreated, onAddConversation }: ChatInterfaceProps) {
   const { createNewConversation } = useConversation(mode)
-  const { messages, addMessage, updateMessageById, setMessages, messagesEndRef, isLoading: isLoadingMessages } = useMessages(conversationId)
-  
-  // Notify parent when messages change
-  useEffect(() => {
-    if (onMessagesChange) {
-      onMessagesChange(messages)
-    }
-  }, [messages, onMessagesChange])
+  const { addMessage, updateMessageById, messagesEndRef, isLoading: isLoadingMessages } = useMessages({ conversationId, messages, setMessages })
   
   const { handleSendMessage, handleStop, isLoading } = useMessageHandler({
     mode,
@@ -43,14 +37,6 @@ export default function ChatInterface({ mode, conversationId, onConversationCrea
     updateMessageById,
     onAddConversation,
   })
-
-  // Reset when conversationId changes to undefined (new conversation requested)
-  useEffect(() => {
-    if (conversationId === undefined) {
-      setMessages([])
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId])
 
   return (
     <div className="flex-1 flex flex-col h-full w-full relative">

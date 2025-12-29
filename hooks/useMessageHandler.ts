@@ -75,7 +75,12 @@ export function useMessageHandler({
       if (!currentConversationId) {
         currentConversationId = await onCreateConversation()
         if (!currentConversationId) {
-          throw new Error('Failed to create conversation')
+          setIsLoading(false)
+          // Show error message (it will be cleared when user clicks "+" for new conversation)
+          const errorMessage = createErrorMessage()
+          errorMessage.content = 'Failed to create conversation. Please try again.'
+          addMessage(errorMessage)
+          return
         }
         
         // Add conversation to sidebar immediately when user submits first message

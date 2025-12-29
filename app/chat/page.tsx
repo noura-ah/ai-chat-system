@@ -94,10 +94,6 @@ export default function ChatPage() {
     setMode(newMode)
   }
 
-  const handleMessagesChange = (newMessages: Message[]) => {
-    setMessages(newMessages)
-  }
-
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
       <Header 
@@ -120,8 +116,9 @@ export default function ChatPage() {
           <ChatInterface 
             mode={mode}
             conversationId={selectedConversationId}
+            messages={messages}
+            setMessages={setMessages}
             onConversationCreated={handleConversationCreated}
-            onMessagesChange={handleMessagesChange}
             onAddConversation={addConversation}
           />
         </div>
