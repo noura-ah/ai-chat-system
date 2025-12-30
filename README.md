@@ -119,23 +119,23 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
    - Click "Select a project" → "New Project"
    - Enter a project name and click "Create"
 
-3. **Enable Google+ API**
-   - Navigate to "APIs & Services" → "Library"
-   - Search for "Google+ API" and enable it
+3. **Configure OAuth Consent Screen**
+   - Go to "APIs & Services" → "OAuth consent screen"
+   - Choose "External" user type
+   - Fill in app name, user support email, and developer contact
+   - Add scopes: `email`, `profile`
+   - Add test users if needed (for development)
+   - Save and continue
 
 4. **Create OAuth 2.0 Credentials**
    - Go to "APIs & Services" → "Credentials"
    - Click "Create Credentials" → "OAuth client ID"
-   - If prompted, configure the OAuth consent screen:
-     - Choose "External" user type
-     - Fill in app name, user support email, and developer contact
-     - Add scopes: `email`, `profile`
-     - Add test users if needed
    - Application type: "Web application"
    - Name: "AI Chat System" (or your preferred name)
    - Authorized redirect URIs:
      - Development: `http://localhost:3000/api/auth/callback/google`
      - Production: `https://your-domain.com/api/auth/callback/google`
+   - Click "Create"
 
 5. **Copy Credentials**
    - Copy the Client ID and Client Secret
