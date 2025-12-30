@@ -5,7 +5,8 @@ import { User, Bot, Search } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { materialDark, prism } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useState, useEffect } from 'react';
 
 interface MessageBubbleProps {
   message: Message
@@ -14,6 +15,15 @@ interface MessageBubbleProps {
 export default function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isSearchMode = message.mode === 'search'
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  // Detect dark mode 
+  useEffect(() => {
+    // Check if document has dark class or system preference
+    const isDark = document.documentElement.classList.contains('dark') ||
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    setIsDarkMode(isDark)
+  }, [])
 
   return (
     <div
@@ -24,8 +34,8 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       <div
         className={`hidden lg:flex flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
           isUser
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+            ? 'bg-stone-200 dark:bg-gray-700 text-stone-700 dark:text-gray-300'
+            : 'bg-stone-200 dark:bg-gray-700 text-stone-700 dark:text-gray-300'
         }`}
       >
         {isUser ? (
@@ -45,8 +55,8 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         <div
           className={`rounded-2xl px-4 py-3 break-words whitespace-normal ${
             isUser
-              ? 'bg-gray-800 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-br-sm lg:max-w-[80%]'
-              : 'text-gray-900 dark:text-gray-100 rounded-bl-sm w-full'
+              ? 'bg-stone-200 dark:bg-gray-800 text-stone-900 dark:text-gray-100 rounded-br-sm lg:max-w-[80%]'
+              : ' dark:bg-gray-800 text-stone-900 dark:text-gray-100 rounded-bl-sm w-full'
           }`}
         >
           {isUser ? (
@@ -69,7 +79,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                     }}
                   >
                     <table 
-                      className="border-collapse border border-gray-300 dark:border-gray-600" 
+                      className="border-collapse border border-stone-300 dark:border-gray-600" 
                       style={{ width: '100%', tableLayout: 'auto' }}
                     >
                       {children}
@@ -77,25 +87,25 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   </div>
                 ),
                 thead: ({ children }) => (
-                  <thead className="bg-gray-100 dark:bg-gray-800">{children}</thead>
+                  <thead className="bg-stone-200 dark:bg-gray-800">{children}</thead>
                 ),
                 tbody: ({ children }) => (
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                  <tbody className="divide-y divide-stone-200 dark:divide-gray-600">
                     {children}
                   </tbody>
                 ),
                 tr: ({ children }) => (
-                  <tr className="border-b border-gray-200 dark:border-gray-600">
+                  <tr className="border-b border-stone-200 dark:border-gray-600">
                     {children}
                   </tr>
                 ),
                 th: ({ children }) => (
-                  <th className="px-4 py-2 text-left font-semibold border border-gray-300 dark:border-gray-600 break-words whitespace-normal">
+                  <th className="px-4 py-2 text-left font-semibold border border-stone-300 dark:border-gray-600 break-words whitespace-normal">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 break-words whitespace-normal">
+                  <td className="px-4 py-2 border border-stone-300 dark:border-gray-600 break-words whitespace-normal">
                     {children}
                   </td>
                 ),
@@ -105,7 +115,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   const match = /language-(\w+)/.exec(className || "");
                   return !isInline && match ? (
                     <div 
-                      className="my-2 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                      className="my-2 w-full rounded-lg overflow-hidden bg-stone-50 dark:bg-gray-800 border border-stone-200 dark:border-gray-700"
                       style={{ 
                         contain: 'inline-size layout'
                       } as React.CSSProperties}
@@ -119,7 +129,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                       >
                         <SyntaxHighlighter
                           className="!text-sm !bg-transparent !p-0" 
-                          style={materialDark}    
+                          style={isDarkMode ? materialDark : prism}    
                           language={match[1]}
                           PreTag="div"
                           customStyle={{ 
@@ -145,7 +155,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                     </div>
                   ) : (
                     <code
-                      className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-sm font-mono"
+                      className="px-1.5 py-0.5 rounded bg-stone-200/70 dark:bg-gray-700 text-sm font-mono"
                       {...props}
                     >
                       {children}
@@ -181,7 +191,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                 p: ({ children }) => <p className="my-2">{children}</p>,
                 // Style blockquotes
                 blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic my-2">
+                  <blockquote className="border-l-4 border-stone-300 dark:border-gray-600 pl-4 italic my-2">
                     {children}
                   </blockquote>
                 ),
@@ -197,7 +207,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                   </a>
                 ),
                 // Style horizontal rules
-                hr: () => <hr className="my-4 border-gray-300 dark:border-gray-600" />,
+                hr: () => <hr className="my-4 border-stone-300 dark:border-gray-600" />,
               }}
               >
                 {message.content}
@@ -206,7 +216,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           )}
         </div>
         )}
-        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
+        <span className="text-xs text-stone-500 dark:text-gray-400 mt-1 px-1">
           {message.timestamp?.toLocaleTimeString()}
         </span>
       </div>

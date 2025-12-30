@@ -9,13 +9,13 @@ interface ModeToggleProps {
 
 export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
   return (
-    <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+    <div className="flex items-center gap-2 bg-stone-100 dark:bg-gray-700 rounded-lg p-1">
       <button
         onClick={() => onModeChange('chat')}
         className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
           mode === 'chat'
-            ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            ? 'bg-white dark:bg-gray-600 text-stone-900 dark:text-white shadow-sm'
+            : 'text-stone-600 dark:text-gray-400 hover:text-stone-900 dark:hover:text-white'
         }`}
       >
         <MessageSquare className="w-4 h-4" />
@@ -25,8 +25,8 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
         onClick={() => onModeChange('search')}
         className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
           mode === 'search'
-            ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            ? 'bg-white dark:bg-gray-600 text-stone-900 dark:text-white shadow-sm'
+            : 'text-stone-600 dark:text-gray-400 hover:text-stone-900 dark:hover:text-white'
         }`}
       >
         <Search className="w-4 h-4" />

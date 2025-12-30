@@ -20,14 +20,14 @@ export default function SignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-stone-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-stone-900 dark:text-white mb-2">
               AI Chat System
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-stone-600 dark:text-gray-400">
               Sign in to continue
             </p>
           </div>
@@ -40,7 +40,7 @@ export default function SignIn() {
 
           <button
             onClick={handleSignIn}
-            className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg px-6 py-3 text-gray-700 font-medium hover:bg-gray-50 transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-3 bg-white border-2 border-stone-300 rounded-lg px-6 py-3 text-stone-700 font-medium hover:bg-stone-50 transition-colors shadow-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -63,9 +63,6 @@ export default function SignIn() {
             Sign in with Google
           </button>
 
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            By signing in, you agree to our Terms of Service and Privacy Policy
-          </p>
         </div>
       </div>
     </div>

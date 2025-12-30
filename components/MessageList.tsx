@@ -16,10 +16,10 @@ export default function MessageList({ messages, isLoading, mode }: MessageListPr
     return (
       <div className="flex-1 flex items-center justify-center h-full">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <h2 className="text-2xl font-semibold text-stone-700 dark:text-gray-300 mb-2">
             Welcome to AI Chat System
           </h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-stone-500 dark:text-gray-400">
             Start a conversation or search the web
           </p>
         </div>
@@ -46,19 +46,19 @@ export default function MessageList({ messages, isLoading, mode }: MessageListPr
       ))}
       {shouldShowLoadingBubble && (
         <div className="flex gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+          <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-stone-200 dark:bg-gray-700 text-stone-700 dark:text-gray-300">
             <Loader2 className="w-5 h-5 animate-spin" />
           </div>
           <div className="flex-1 flex flex-col items-start">
-            <div className="rounded-2xl px-4 py-3 max-w-[80%] truncate break-words whitespace-normal text-gray-900 dark:text-gray-100 rounded-bl-sm">
+            <div className="rounded-2xl px-4 py-3 max-w-[80%] truncate break-words whitespace-normal text-stone-900 dark:text-gray-100 rounded-bl-sm">
               <div className="flex items-center gap-1.5">
-                <span className="text-gray-400 dark:text-gray-500">
+                <span className="text-stone-400 dark:text-gray-500">
                   {mode === 'search' ? 'Searching the web' : 'Thinking'}
                 </span>
                 <div className="flex gap-1 mb-1 self-end">
-                  <div className="w-[3px] h-[3px] bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
-                  <div className="w-[3px] h-[3px] bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-[3px] h-[3px] bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-[3px] h-[3px] bg-stone-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
+                  <div className="w-[3px] h-[3px] bg-stone-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-[3px] h-[3px] bg-stone-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               </div>
             </div>

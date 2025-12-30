@@ -95,7 +95,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
+    <div className="h-screen bg-stone-100 dark:bg-gray-900 flex flex-col overflow-hidden">
       <Header 
         mode={mode} 
         onModeChange={handleModeChange}

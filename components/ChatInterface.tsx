@@ -42,10 +42,10 @@ export default function ChatInterface({ mode, conversationId, messages, setMessa
     <div className="flex-1 flex flex-col h-full w-full relative">
       {/* Page-level loading overlay when loading messages (navigating between conversations) */}
       {isLoadingMessages && (
-        <div className="absolute inset-0 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-stone-50/80 dark:bg-gray-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-4 border-gray-300 dark:border-gray-600 border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin"></div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Loading conversation...</p>
+            <div className="w-8 h-8 border-4 border-stone-300 dark:border-gray-600 border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin"></div>
+            <p className="text-sm text-stone-600 dark:text-gray-400">Loading conversation...</p>
           </div>
         </div>
       )}
@@ -55,7 +55,7 @@ export default function ChatInterface({ mode, conversationId, messages, setMessa
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="flex-shrink-0 py-6 w-full border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+      <div className="flex-shrink-0 py-6 w-full border-stone-200 dark:border-gray-700 bg-stone-100 dark:bg-gray-900">
         <div className="max-w-4xl w-full mx-auto px-4">
           <MessageInput onSend={handleSendMessage} onStop={handleStop} isLoading={isLoading} mode={mode} conversationId={conversationId} />
         </div>

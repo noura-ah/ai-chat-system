@@ -121,7 +121,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
             isSearchMode ? 'Search the web...' : 'Type your message...'
           }
           rows={1}
-          className="flex-1 resize-none border-none outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 overflow-y-auto"
+          className="flex-1 resize-none border-none outline-none bg-transparent text-stone-900 dark:text-gray-100 placeholder-stone-500 dark:placeholder-gray-400 overflow-y-auto"
           style={{ minHeight: '24px', maxHeight: '72px' }}
           disabled={isLoading}
         />
@@ -131,7 +131,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
               e.stopPropagation()
               onStop()
             }}
-            className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-stone-200 dark:bg-gray-700 text-stone-700 dark:text-gray-300 flex items-center justify-center hover:bg-stone-300 dark:hover:bg-gray-600 transition-colors"
             title="Stop generating"
           >
             <Square className="w-4 h-4 fill-current" />
@@ -140,7 +140,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
           <button
             onClick={(e) => handleSend(e)}
             disabled={isLoading || !input.trim()}
-            className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-stone-700 text-white flex items-center justify-center hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -150,7 +150,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
           </button>
         )}
       </div>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+      <p className="text-xs text-stone-500 dark:text-gray-400 mt-2 text-center">
         Press Enter to send, Shift+Enter for new line
       </p>
     </div>
