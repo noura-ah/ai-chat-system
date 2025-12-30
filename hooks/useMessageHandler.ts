@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Message } from '@/types/chat'
-import { handleSearch } from './useSearchHandler'
-import { handleChatStream, createAssistantMessage } from './useChatStreamHandler'
+import { search } from '@/lib/search'
+import { chatStream, createAssistantMessage } from '@/lib/chatStream'
 import { Conversation } from './useConversations'
 import { messagesApi } from '@/lib/api'
 
@@ -101,7 +101,7 @@ export function useMessageHandler({
       saveMessage(userMessage, currentConversationId)
 
       if (mode === 'search') {
-        const assistantMessage = await handleSearch(content)
+        const assistantMessage = await search(content)
         addMessage(assistantMessage)
         await saveMessage(assistantMessage, currentConversationId)
       } else {
@@ -115,7 +115,7 @@ export function useMessageHandler({
 
         // Stream the response and add/update the message
         try {
-          await handleChatStream(content, historyWithUser, (chunk) => {
+          await chatStream(content, historyWithUser, (chunk) => {
             // Check if aborted before processing chunk
             if (abortControllerRef.current?.signal.aborted) {
               return

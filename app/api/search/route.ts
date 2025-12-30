@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
             {
               role: 'system',
               content:
-                'You are a helpful assistant that summarizes search results concisely.',
+                'You are a helpful assistant that summarizes search results concisely. Keep your response under 200 tokens.',
             },
             {
               role: 'user',
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
           ],
           {
             max_tokens: 200,
-            temperature: 0.7,
+            temperature: 0.2,
           }
         )
 

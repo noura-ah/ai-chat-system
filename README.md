@@ -336,16 +336,20 @@ Make sure to set these in your hosting provider:
 │   ├── useConversations.ts      # Conversation state management
 │   ├── useMessages.ts           # Message state management
 │   ├── useMessageHandler.ts     # Message sending logic
-│   ├── useChatStreamHandler.ts  # Chat streaming handler
-│   ├── useSearchHandler.ts      # Search handler
 │   └── useConversation.ts       # Conversation creation
 ├── lib/
 │   ├── api.ts                   # Centralized API client
 │   ├── auth.ts                  # NextAuth configuration
 │   ├── openrouter.ts            # OpenRouter API client
+│   ├── chatStream.ts            # Chat streaming handler
+│   ├── search.ts                # Search handler
 │   ├── db.ts                    # Prisma client
 │   ├── user.ts                  # User helper functions
-│   └── mode.ts                  # Mode derivation logic
+│   ├── mode.ts                  # Mode derivation logic
+│   └── utils/
+│       ├── response.ts           # Response validation utilities
+│       ├── tokens.ts             # Token calculation utilities
+│       └── stream.ts             # Stream processing utilities
 ├── prisma/
 │   └── schema.prisma            # Database schema
 ├── types/

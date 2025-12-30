@@ -154,7 +154,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                 },
                 pre: ({ children }) => (
                   <div className="w-full my-2" style={{ width: '100%', maxWidth: '100%', overflowX: 'auto' }}>
-                    <pre className="p-3 rounded-lg" style={{ width: 'max-content', minWidth: '100%', display: 'block' }}>
+                    <pre className="p-3 rounded-lg font-mono" style={{ width: 'max-content', minWidth: '100%', display: 'block' , whiteSpace: 'pre' }}>
                       {children}
                     </pre>
                   </div>

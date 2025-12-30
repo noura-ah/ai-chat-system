@@ -14,7 +14,7 @@ interface ChatInterfaceProps {
   conversationId?: string
   messages: Message[]
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
-  onConversationCreated?: (id: string) => void
+  onConversationCreated: (id: string) => void
   onAddConversation: (conversation: Conversation) => void
 }
 
@@ -28,7 +28,7 @@ export default function ChatInterface({ mode, conversationId, messages, setMessa
     conversationId,
     onCreateConversation: async () => {
       const newId = await createNewConversation()
-      if (newId && onConversationCreated) {
+      if (newId) {
         onConversationCreated(newId)
       }
       return newId

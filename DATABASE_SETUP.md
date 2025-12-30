@@ -86,9 +86,6 @@ npm run db:studio
 - `POST /api/chat` - Stream AI chat responses (Server-Sent Events)
 - `POST /api/search` - Perform web search and return results
 
-### Health
-- `GET /api/health` - Health check endpoint
-
 ## Troubleshooting
 
 ### Database Connection Error

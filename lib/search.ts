@@ -1,7 +1,7 @@
 import { Message } from '@/types/chat'
 import { searchApi } from '@/lib/api'
 
-export async function handleSearch(
+export async function search(
   query: string
 ): Promise<Message> {
   const data = await searchApi.search(query)

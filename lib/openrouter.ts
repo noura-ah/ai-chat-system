@@ -119,11 +119,12 @@ export async function openRouterChatCompletion(
  */
 export async function openRouterChatStream(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
-  options?: { temperature?: number }
+  options?: { temperature?: number; max_tokens?: number }
 ): Promise<ReadableStream<Uint8Array>> {
   const response = await openRouterRequest(messages, {
     stream: true,
     temperature: options?.temperature,
+    max_tokens: options?.max_tokens,
   })
 
   if (!response.body) {

@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, ImageOff } from 'lucide-react'
 
 interface SearchResult {
   title: string
@@ -15,6 +16,12 @@ interface SearchResultsProps {
 }
 
 export default function SearchResults({ results, images }: SearchResultsProps) {
+  const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set())
+
+  const handleImageError = (index: number) => {
+    setBrokenImages((prev) => new Set(prev).add(index))
+  }
+
   return (
     <div className="mt-2 space-y-4 w-full min-w-0">
       {/* Image Results */}
@@ -27,14 +34,21 @@ export default function SearchResults({ results, images }: SearchResultsProps) {
                   key={index}
                   className="relative flex-shrink-0 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 group cursor-pointer"
                 >
-                  <Image
-                    src={image.url}
-                    alt={image.title || `Search result ${index + 1}`}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform"
-                    sizes="128px"
-                    unoptimized
-                  />
+                  {brokenImages.has(index) ? (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-300 dark:bg-gray-600">
+                      <ImageOff className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    </div>
+                  ) : (
+                    <Image
+                      src={image.url}
+                      alt={image.title || `Search result ${index + 1}`}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                      sizes="128px"
+                      unoptimized
+                      onError={() => handleImageError(index)}
+                    />
+                  )}
                 </div>
               ))}
             </div>

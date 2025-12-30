@@ -11,7 +11,7 @@ export function createAssistantMessage(): Message {
   }
 }
 
-export async function handleChatStream(
+export async function chatStream(
   message: string,
   history: Message[],
   onChunk: (content: string) => void,
