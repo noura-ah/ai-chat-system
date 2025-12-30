@@ -29,7 +29,7 @@ export function useMessages({ conversationId, messages, setMessages }: UseMessag
       }, isLoading ? 50 : 0)
       return () => clearTimeout(timer)
     }
-  }, [isLoading, messages])
+  }, [isLoading, messages.length])
 
   // Load messages from database if conversationId is provided
   useEffect(() => {
