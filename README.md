@@ -122,8 +122,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 3. **Configure OAuth Consent Screen**
    - Go to "APIs & Services" → "OAuth consent screen"
    - Choose "External" user type
-   - Fill in app name, user support email, and developer contact
-   - Add scopes: `email`, `profile`
+   - Fill in app name, user support email, and developer contact`
    - Add test users if needed (for development)
    - Save and continue
 

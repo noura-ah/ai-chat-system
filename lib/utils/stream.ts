@@ -51,18 +51,38 @@ function processSSELine(
   accumulatedContent: { value: string },
   controller: ReadableStreamDefaultController<Uint8Array>
 ): void {
+  // Skip empty lines
+  if (!line.trim()) {
+    return
+  }
+
+  // Only process lines that start with "data: "
   if (!line.startsWith('data: ')) {
     return
   }
 
-  const data = line.slice(6)
+  const data = line.slice(6).trim()
+  
+  // Handle [DONE] marker
   if (data === '[DONE]') {
+    return
+  }
+
+  // Skip empty data
+  if (!data) {
     return
   }
 
   try {
     const parsed = JSON.parse(data)
-    const content = parsed.choices?.[0]?.delta?.content || ''
+    
+    // OpenRouter/OpenAI format: check choices[0].delta.content
+    // Also check choices[0].message.content for some formats
+    const content = 
+      parsed.choices?.[0]?.delta?.content || 
+      parsed.choices?.[0]?.message?.content || 
+      ''
+    
     if (content) {
       const encoder = new TextEncoder()
       accumulatedContent.value += content
@@ -70,7 +90,11 @@ function processSSELine(
       safeEnqueue(controller, encoder.encode(sseData))
     }
   } catch (e) {
-    // Ignore parse errors
+    // Log parse errors for debugging but don't break the stream
+    // Some lines might not be valid JSON (e.g., error messages)
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Failed to parse SSE data:', line, e)
+    }
   }
 }
 
@@ -84,8 +108,10 @@ function processBufferLines(
   abortSignal?: AbortSignal
 ): string {
   const lines = buffer.split('\n')
-  const remainingBuffer = lines.pop() || ''
+  // Keep the last line in buffer as it might be incomplete
+  const remainingBuffer = lines[lines.length - 1] === '' ? '' : lines.pop() || ''
 
+  // Process all complete lines
   for (const line of lines) {
     if (abortSignal?.aborted) {
       break
