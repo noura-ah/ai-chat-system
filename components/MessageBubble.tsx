@@ -56,7 +56,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           className={`rounded-2xl px-4 py-3 break-words whitespace-normal ${
             isUser
               ? 'bg-stone-200 dark:bg-gray-800 text-stone-900 dark:text-gray-100 rounded-br-sm lg:max-w-[80%]'
-              : ' dark:bg-gray-800 text-stone-900 dark:text-gray-100 rounded-bl-sm w-full'
+              : 'text-stone-900 dark:text-gray-100 rounded-bl-sm w-full'
           }`}
         >
           {isUser ? (

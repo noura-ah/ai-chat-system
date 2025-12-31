@@ -66,7 +66,7 @@ export default function SearchResults({ results, images }: SearchResultsProps) {
                 href={result.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-3 bg-stone-50 dark:bg-gray-700 rounded-lg hover:shadow-md transition-shadow border border-stone-200 dark:border-gray-600"
+                className="block p-3 bg-stone-50 dark:bg-gray-700 rounded-lg hover:shadow-md transition-shadow border border-stone-200 dark:border-gray-600 dark:hover:shadow-lg dark:hover:bg-gray-600"
               >
                 <div className="flex items-start gap-2">
                   <ExternalLink className="w-4 h-4 text-stone-400 mt-1 flex-shrink-0" />

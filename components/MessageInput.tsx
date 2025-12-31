@@ -140,7 +140,7 @@ export default function MessageInput({ onSend, onStop, isLoading, mode, conversa
           <button
             onClick={(e) => handleSend(e)}
             disabled={isLoading || !input.trim()}
-            className="flex-shrink-0 w-10 h-10 rounded-lg bg-stone-700 text-white flex items-center justify-center hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-stone-200 dark:bg-gray-700 text-stone-700 dark:text-gray-300 flex items-center justify-center hover:bg-stone-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
