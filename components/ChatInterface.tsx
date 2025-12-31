@@ -39,7 +39,7 @@ export default function ChatInterface({ mode, conversationId, messages, setMessa
   })
 
   return (
-    <div className="flex-1 flex flex-col h-full w-full relative">
+    <div className="flex-1 flex flex-col h-full w-full overflow-y-auto relative">
       {/* Page-level loading overlay when loading messages (navigating between conversations) */}
       {isLoadingMessages && (
         <div className="absolute inset-0 bg-stone-50/80 dark:bg-gray-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -50,7 +50,7 @@ export default function ChatInterface({ mode, conversationId, messages, setMessa
         </div>
       )}
       <div className="flex-1 overflow-y-auto w-full">
-        <div className="max-w-4xl w-full mx-auto px-4 h-full">
+        <div className="max-w-4xl w-full mx-auto px-4 h-full pt-4">
           <MessageList messages={messages} isLoading={isLoading} mode={mode} />
           <div ref={messagesEndRef} />
         </div>
