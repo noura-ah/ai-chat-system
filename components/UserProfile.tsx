@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import Image from 'next/image'
 import { Session } from 'next-auth'
 import { LogOut, User } from 'lucide-react'
@@ -10,7 +10,7 @@ interface UserProfileProps {
   onLogout: () => void
 }
 
-export default function UserProfile({ session, onLogout }: UserProfileProps) {
+function UserProfile({ session, onLogout }: UserProfileProps) {
   const [imageError, setImageError] = useState(false)
 
   if (!session) return null
@@ -28,6 +28,7 @@ export default function UserProfile({ session, onLogout }: UserProfileProps) {
         {session.user?.image && !imageError ? (
           <div className="relative w-8 h-8 rounded-full overflow-hidden bg-stone-200 dark:bg-gray-700">
             <Image
+              key={session.user.image}
               src={session.user.image}
               alt={session.user.name || 'User'}
               width={32}
@@ -57,4 +58,5 @@ export default function UserProfile({ session, onLogout }: UserProfileProps) {
     </div>
   )
 }
+export default memo(UserProfile)
 

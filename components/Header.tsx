@@ -1,6 +1,7 @@
 'use client'
 
 import { useSession, signOut } from 'next-auth/react'
+import { useCallback } from 'react'
 import { Menu } from 'lucide-react'
 import ModeToggle from './ModeToggle'
 import UserProfile from './UserProfile'
@@ -13,6 +14,10 @@ interface HeaderProps {
 
 export default function Header({ mode, onModeChange, onToggleSidebar }: HeaderProps) {
   const { data: session } = useSession()
+
+  const handleLogout = useCallback(() => {
+    signOut({ callbackUrl: '/auth/signin' })
+  }, [])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700">
@@ -32,7 +37,7 @@ export default function Header({ mode, onModeChange, onToggleSidebar }: HeaderPr
             </h1>
             <ModeToggle mode={mode} onModeChange={onModeChange} />
           </div>
-          <UserProfile session={session} onLogout={() => signOut({ callbackUrl: '/auth/signin' })} />
+          <UserProfile session={session} onLogout={handleLogout} />
         </div>
       </div>
     </header>
